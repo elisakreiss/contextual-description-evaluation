@@ -1,4 +1,5 @@
 import json
+import pandas as pd
 from smurf.eval import preprocess,smurf_eval_captions
 from smurf.system_analysis import smurf_system_analysis
 
@@ -19,8 +20,14 @@ refs = [ref_dict[cap['image_id']] for cap in cand_list]
 #perform caption-level analysis of example caption set
 meta_scorer = smurf_eval_captions(refs, cands, fuse=False)
 scores = meta_scorer.evaluate()
-with open(result_file, 'w') as outfile:
-    json.dump(scores, outfile)
+# with open(result_file, 'w') as outfile:
+#     json.dump(scores, outfile)
+df = pd.DataFrame({"texts": [cap['caption'] for cap in cand_list],
+                    "text_controls": cands,
+                    "SPURTS_score": scores['SPURTS'],
+                    "MIMA_score": scores['MIMA']})
+print(df)                       
+df.to_csv("results/cosid-spurts-mima.csv", index=False)
 
 
 # #perform system-level analysis from Figure 1 of SMURF paper
