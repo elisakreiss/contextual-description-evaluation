@@ -17,7 +17,7 @@ If you find the paper or this code useful, please consider citing:
 
 ```
 @inproceedings{hessel2021clipscore,
-  title={{CLIPScore:} A Reference-free Evaluation Metric for Image Captioning},
+  title={CLIPScore: A Reference-free Evaluation Metric for Image Captioning},
   author={Hessel, Jack and Holtzman, Ari and Forbes, Maxwell and Bras, Ronan Le and Choi, Yejin},
   booktitle={EMNLP},
   year={2021}
