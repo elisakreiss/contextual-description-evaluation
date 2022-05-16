@@ -1,0 +1,80 @@
+var main_trials = [
+	{
+		"topic": "meeting_in_progress",
+		"images": [
+			"1600px-Covariant_Founding_Team_at_Covariant_HQ_Anno_November_2017.jpg",
+			"La_Trobe_Uni_Wikimeetup_March_2020.jpg",
+			"Atelier_\u00e0_l'IFB_-_11_&_12_Mars_2020_(3).jpg"
+		],
+		"contexts": [
+			"Consumer Electronics",
+			"Furniture",
+			"Cooperation"
+		]
+	},
+	{
+		"topic": "church",
+		"images": [
+			"1599px-Paris_Notre-Dame_East_View_02.jpeg",
+			"1443px-Iglesia_Nova_Gracanica,_Trebinje,_Bosnia_y_Herzegovina,_2014-04-14,_DD_04.jpg",
+			"Dreifaltigkeitskirche_s\u00fcd.jpg"
+		],
+		"contexts": [
+			"Roof",
+			"Christian cross",
+			"Building material"
+		]
+	},
+	{
+		"topic": "living_room",
+		"images": [
+			"Living_room_at_35_Yowani_Rd_Rosedale_NSW_all_burnt_in_2019-12-19_bushfire.jpg",
+			"wiki_livingroom.jpg",
+			"Wohnzimmer_Fallada_1.JPG"
+		],
+		"contexts": [
+			"Interior Design",
+			"Window",
+			"Furniture"
+		]
+	},
+	{
+		"topic": "laid_table",
+		"images": [
+			"Earth_to_Table_DInner_with_Gunnar_Karl_G\u00edslason_(15640694895).jpg",
+			"Thanksgiving_Dinner_Table,_Broward_County_Florida,_1971_02.jpg",
+			"1600px-2019-11-28_14_40_55_A_dinner_table_laid_out_for_Thanksgiving_Dinner_in_the_Parkway_Village_section_of_Ewing_Township,_Mercer_County,_New_Jersey.jpg"
+		],
+		"contexts": [
+			"Tableware",
+			"Dinner",
+			"American Cuisine"
+		]
+	},
+	{
+		"topic": "soccer_in_progress",
+		"images": [
+			"1599px-20180920_Fussball,_UEFA_Europa_League,_RB_Leipzig_-_FC_Salzburg_by_Stepro_StP_8051.jpg",
+			"1599px-Georgios_Ntaviotis_&_Daniel_Sou\u010dek,_U21_CZE-GRE_2019-10-10.jpg",
+			"1599px-20191002_Fu\u00dfball,_M\u00e4nner,_UEFA_Champions_League,_RB_Leipzig_-_Olympique_Lyonnais_by_Stepro_StP_0278.jpg"
+		],
+		"contexts": [
+			"Competition",
+			"Hairstyle",
+			"Advertising"
+		]
+	},
+	{
+		"topic": "mountains",
+		"images": [
+			"Lago_de_Como,_Italia,_2016-06-25,_DD_02-06_PAN.jpeg",
+			"river.jpeg",
+			"Oberaargletscher_from_Oberaar,_2010_07.jpeg"
+		],
+		"contexts": [
+			"Body of Water",
+			"Orogeny",
+			"Montane Ecosystems"
+		]
+	}
+]

@@ -1,0 +1,16 @@
+var attention_checks = [
+	{
+		"img_id": "park1",
+		"topic": "attention_check",
+		"context": "Sculpture",
+		"description": "A park on a nice day with lots of grass and trees and a pond.",
+		"filename": "640px-parc_agen.jpg"
+	},
+	{
+		"img_id": "guitar1",
+		"topic": "attention_check",
+		"context": "Guitar",
+		"description": "An orange and white guitar and a brown and white guitar being played.",
+		"filename": "guitar.png"
+	}
+]

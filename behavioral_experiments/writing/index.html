@@ -1,0 +1,326 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+
+        <title>browser-based experiments</title>
+
+        <!-- fonts from Google fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700|Noto+Serif:400,700|Playfair+Display:700" rel="stylesheet">
+
+        <!-- css and column styles -->
+        <link rel="stylesheet" type="text/css" href="styles/styles.css">
+
+        <!-- js dependencies -->
+        <script src="libraries/mustache/mustache.min.js"></script>
+        <script src="libraries/jquery/dist/jquery.min.js"></script>
+        <!-- This doesn't seem to be there on cloudflare -->
+        <script src="libraries/csv-js/csv.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.js"></script>
+
+        <!-- config -->
+        <script src="config/config_deploy.js"></script>
+
+        <!-- local js files -->
+        <script src="scripts/main.js"></script>
+        <script src="scripts/experiment.js"></script>
+        <script src="scripts/helpers.js"></script>
+        <script src="scripts/utils.js"></script>
+        <script src="scripts/submit_to_server.js"></script>
+
+        <!-- local trial_info files -->
+        <!-- <script src="trial_info/main_trials.js"></script> -->
+        <script src="trial_info/exp_sample.json"></script>
+        <script src="trial_info/attention_checks.json"></script>
+
+        <!-- local data files-->
+        <script src="data/contexts.json"></script>
+
+        <!-- views -->
+        <script src="views/views.js"></script>
+
+        <script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+        <script type="text/javascript">
+          $(document).ready(function(){
+            var ut_id = "6cab408e484eae066507eb96ba677abe";
+            if (UTWorkerLimitReached(ut_id)) {
+                $(".slide").hide();
+                $("body").html("Unfortunately, you have already participated in this or a similar HIT and the requester doesn't allow repeated participations on this task. We're sorry for the inconvenience! Please click 'Return HIT' to avoid any impact on your approval rating.");
+            }
+          });
+        </script>
+    </head>
+
+    <body>
+        <noscript>This task requires JavaScript. Please enable JavaScript in your browser and reload the page. For more information on how to do that, please refer to
+            <a href='https://enable-javascript.com' target='_blank'>enable-javascript.com</a>
+        </noscript>
+
+        <!-- views are inserted in main -->
+        <main id='main'>
+            Loading...
+        </main>
+
+        <!-- Mustache templates below. Each template is a view with a separate HTML structure. -->
+        <script id="botcaptcha-view" type="text/html">
+            <div class='view'>
+
+                {{# title }}
+                <h1>{{ title }}</h1>
+                {{/ title }}
+                <br>
+                {{{# text }}}
+                <section class="text-container">
+                    <p class="text">{{{ text }}}</p>
+                </section>
+                {{{/ text }}}
+                <br>
+                {{{# question }}}
+                <section class="text-container">
+                    <p class="text" id="quest-response">
+                        {{{ question }}}
+                        <textarea rows="1" cols="15" id="listener-response"></textarea>
+                    </p>
+                </section>
+                {{{/ question }}}
+                <br>
+                {{# button }}
+                <button id="next">{{ button }}</button>
+                {{/ button }}
+                {{^ button }}
+                <button id="next">Next</button>
+                {{/ button }}
+                <section class="answer-container">
+                    <p class="text" id="error_incorrect" style="color: #7CB637">This is incorrect.</p>
+                    <p class="text" id="error_2more" style="color: #7CB637">You have 2 more trials.</p>
+                    <p class="text" id="error_1more" style="color: #7CB637">You have 1 more trial.</p>
+                    <p class="text" id="error" style="color: #7CB637">Error: You failed to enter the correct response.</p>
+                </section>
+
+            </div>
+        </script>
+
+        <!-- Introduction view -->
+        <script id="intro-view" type="text/html">
+            <div class='view'>
+                <div class="picture">
+                    <img src={{ picture }} alt="a picture" height="100" style="border: 1px solid black;">
+                </div>
+                <br>
+                <br>
+                <!-- {{# title }}
+                <h1 class="title">{{ title }}</h1>
+                {{/ title }} -->
+                {{# text }}
+                <section class="text-container">
+                    <p class="text">{{{ text }}}</p>
+                </section>
+                {{/ text }}
+                <br>
+                {{# button }}
+                <button id="next" class="nodisplay">{{ button }}</button>
+                {{/ button }}
+                {{^ button }}
+                <button id="next">Next</button>
+                {{/ button }}
+                <br>
+                {{# legal_info }}
+                <section class="text-container">
+                    <hr>
+                    <br>
+                    <p class="legal-text">{{{ legal_info }}}</p>
+                </section>
+                {{/ legal_info }}
+                <p id="prolific-id-form">
+                    <label for="prolific-id">Please, enter your Prolific ID</label>
+                    <input type="text" id="prolific-id" />
+                </p>
+            </div>
+
+        <script id="instructions-view" type="text/html">
+            <div class="view">
+                <h1> Instructions </h1>
+                <br>
+                <div id="first-instructions">
+                    <p>Imagine you’re reading <strong>a Wikipedia article which contains an image</strong> as shown below.</p>
+                    <br>
+                    <img src="data/instructions_example.jpeg" style="max-width:550px; display: block; margin-left: auto; margin-right: auto;">
+                    <br><br>
+                    <p><strong>The image</strong>, however, <strong>can’t be seen by readers with low-vision</strong>. They need to rely 
+                        on <strong>textual descriptions</strong> that can be read to them by screen readers.</p>
+                    <br>
+                    <p>In this HIT, you will be asked to provide useful descriptions for images to help make them more accessible.</p>
+                </div>
+
+                <div id="second-instructions" style="display: none;">
+                    <ol>
+                        <li>First, you'll <strong>read an excerpt of a Wikipedia article.</strong></li>
+                        <br>
+                        <img src="data/instructions_example_1.jpeg" style="max-width:550px; display: block; margin-left: auto; margin-right: auto;">
+                        <br>
+                        <li>Once you're done, the article's <strong>image is revealed</strong>, and you'll be asked to <strong>write a description</strong> for it.</li>
+                        <br>
+                        <img src="data/instructions_example.jpeg" style="max-width:550px; display: block; margin-left: auto; margin-right: auto;">
+                        <br>
+                        <li>You'll have a chance to <strong>preview your description</strong> before you move on to the next article.</li>
+                        <br>
+                        <img src="data/instructions_example_2.jpeg" style="max-width:550px; display: block; margin-left: auto; margin-right: auto;">
+                    <br>
+                    <p><strong>Are you ready?</strong>
+                </div>
+
+                <button id="next">Next</button>
+            </div>
+        </script>
+
+        <!-- main view (buttons response) -->
+        <script id="main-view" type="text/html">
+        <div class="view">
+            <h4 id="instructions" class="picture" style="justify-content:left">Read the following beginning of a Wikipedia article!</h4>
+            <br>
+            <h1>{{title}}</h1>
+            <br>
+            <div class="picture">
+                {{# critical_text }}
+                <p class="context">{{{ critical_text }}}</p>
+                {{/ critical_text }}
+            </div>
+            <br>
+            <div class="picture">
+                <img id="img-to-descr" src={{ picture }} alt="a picture" style="display:none; object-fit: contain; max-width:660px; max-height: 560px;">
+            </div>
+            <div id="check-descr-area" style="display: none; height: 300px; width: 660px; border: 5px solid #555">
+                <br>
+                <p id="check-descr-text" style="text-align: center;"></p>
+            </div>
+            <br>
+            <hr>
+            <br>
+
+            <p id="user-description-area" style="text-align: center; display: none;">
+                <label for="user-description">Imagine someone is reading the above Wikipedia page but can't see the image. Provide a description of the image for the person reading the article.</label>
+                <br>
+                <textarea name="user-description" id="user-description" rows="2" cols="50"></textarea>
+            </p>
+            <p id="char-count" style="text-align:right; display:none; font-size: 14px; color: gray"><i id="char-count-text">0 characters</i>&nbsp&nbsp
+                <button id="help" style="float: right; display: none; margin-top: 0px;">?</button>
+                <br><br>
+                <div id="helpText" style="float: right; margin-top: 0;">
+                    <p style="font-size:13px;">In practice, descriptions are typically 150 characters.</p>
+                </div>
+            </p>
+
+            <p id="too-short" style="font-size: 14px; color: red; justify-content: center; display: none">Oops! The description is too short. Please write a description that is longer than 5 characters.</p>
+
+            <div class="buttons" style="text-align: center;">
+                <button id="back" style="display: none;">Not quite. Let me edit my description.</button>
+                <button id="next">Done reading! Show me the article's image.</button>
+            </div>
+
+
+        </div>
+        </script>
+
+        <!-- post test view -->
+        <script id="post-test-view" type="text/html">
+        <div class="view post-test-templ">
+            {{# title }}
+            <h1>{{ title }}</h1>
+            {{/ title }}
+            {{# text }}
+            <section class="text-container">
+                <p class="text">{{ text }}</p>
+            </section>
+            {{/ text }}
+            <form>
+            <p>
+                <label for="HitCorrect">Did you read the instructions and do you think you did the HIT correctly?</label>
+                <select id="HitCorrect" name="HitCorrect">
+                    <option></option>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                    <option value="404">I was confused</option>
+                </select>
+            </p>
+            <p>
+                <label for="age">Age:</label>
+                <input type="number" name="age" min="18" max="110" id="age" />
+            </p>
+            <!-- <p>
+                <label for="gender">Gender:</label>
+                <input type="text" id="gender">
+            </p> -->
+            <!-- <p>
+                <label for="education">Level of Education:</label>
+                <select id="education" name="education">
+                    <option></option>
+                    <option value="some_high_school">Some High School</option>
+                    <option value="graduated_high_school">Graduated High School</option>
+                    <option value="some_college">Some College</option>
+                    <option value="graduated_college">Graduated College</option>
+                    <option value="higher_degree">Hold a Higher Degree</option>
+                </select>
+            </p> -->
+            <p>
+                <label for="languages" name="languages">Native Languages: <br /><span>(i.e. the language(s) spoken at home when you were a child)</</span></label>
+                <input type="text" id="languages"/>
+            </p>
+            <!-- <p>
+                <label for="enjoyment">Enjoyment:</label>
+                <select id="enjoyment" name="enjoyment">
+                    <option></option>
+                    <option value="0">Worse than the Average Hit</option>
+                    <option value="1">Average Hit</option>
+                    <option value="2">Better than the Average Hit</option>
+                </select>
+            </p> -->
+            <p class="usefulness-sect">
+                <label for="usefulness">Do you feel confident in the usefulness of your descriptions?</label>
+                <textarea name="usefulness" id="usefulness" rows="2" cols="40"></textarea>
+            </p>
+            <p class="difficulties-sect">
+                <label for="difficulties">Did you find any of the images out of place in their articles? (If so, which one(s) and why?)</label>
+                <textarea name="difficulties" id="difficulties" rows="6" cols="40"></textarea>
+            </p>
+            <p class="past-experience">
+                <label for="past-experience">Have you written alt descriptions for images online before?</label>
+                <select id="past-experience" name="past-experience">
+                    <option></option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </p>
+            <p class="comment-sect">
+                <label for="comments">Further Comments:</label>
+                <textarea name="comments" id="comments"
+                rows="6" cols="40"></textarea>
+            </p>
+            {{# buttonText }}
+            <button id="next">{{ buttonText }}</button>
+            {{/ buttonText }}
+            {{^ buttonText }}
+            <button id="next">Next</button>
+            {{/ buttonText }}
+            </form>
+            </div>
+        </script>
+
+        <!-- Thanks View -->
+        <script id="thanks-view" type="x-tmpl-mustache">
+        <div class="view thanks-templ">
+            <h4 class="warning-message">submitting the data
+                <div class="loader"></div>
+            </h4>
+            {{# thanksMessage }}
+            <h1 class="thanks-message nodisplay">{{ thanksMessage }}</h1>
+            {{/ thanksMessage }}
+            {{^ thanksMessage }}
+            <h1 class="thanks-message nodisplay">Thank you for taking part in this experiment!</h1>
+            {{/ thanksMessage }}
+            {{# extraMessage }}
+            <h2 class="extra-message nodisplay">{{{ extraMessage }}}</h2>
+            {{/ extraMessage }}
+        </div>
+        </script>
+    </body>
+</html>
