@@ -1,0 +1,758 @@
+---
+title: "Description Evaluation Study (BLV Participants)"
+# output: html_notebook
+output: rmarkdown::github_document
+---
+
+# Data setup
+
+```{r load libraries, message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(here)
+theme_set(theme_bw())
+```
+
+```{r load blv data, message=FALSE, warning=FALSE, include=FALSE}
+df_1 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study1.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p1")
+df_2 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study2.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p2")
+df_3 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study3.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p3")
+df_4 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study4.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p4")
+df_5 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study5.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p5")
+df_6 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study6.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p6")
+df_7 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study7.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p7")
+df_8 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study8.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p8")
+df_9 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study9.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p9")
+df_10 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study10.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p10")
+df_11 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study11.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p11")
+df_12 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study12.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p12")
+df_13 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study13.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p13")
+df_14 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study14.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p14")
+df_15 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study15.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p15")
+df_16 = read_csv(here("behavioral_data", "raw", "evaluation_blv", "Image Accessibility Study16.csv")) %>% 
+  mutate_at(vars(matches("start time"), matches("end time")), funs(as.character(.))) %>% 
+  mutate(participant = "p16")
+```
+
+```{r meta data, include=FALSE}
+df_meta = select(df_1,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+                 matches('8) Write any additional feedback here'),
+                 'participant') %>% 
+  rbind(select(df_2,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>% 
+  rbind(select(df_3,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_4,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_5,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_6,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_7,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_8,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_9,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_10,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_11,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_12,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_13,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_14,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_15,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+               matches('8) Write any additional feedback here'),
+                 'participant')) %>%
+  rbind(select(df_16,
+                 matches('level of vision'),
+                 matches('often do you rely'),
+                 matches('which screen reader'),
+                 matches('internet browser'),
+                 matches('your age'),
+                 matches('gender'),
+                 matches('Was the study clear'),
+                 matches('start time'),
+                 matches('end time'),
+                 matches('Eligibility'),
+                 matches('select the statement that is correct'),
+                matches('8) Write any additional feedback here'),
+                 'participant'))
+
+```
+
+```{r meta info, message=FALSE, warning=FALSE, include=FALSE}
+
+df_meta_clean = df_meta %>% 
+  rename('level_of_vision' = matches('level of vision'),
+         'screenreader_freq' = matches('often do you rely'),
+         'screenreader_type' = matches('which screen reader'),
+         'browser' = matches('internet browser'),
+         'age' = matches('your age'),
+         'gender' = matches('gender'),
+         'study_clarity' = matches('Was the study clear'),
+         'start_time' = matches('start time'),
+         'end_time' = matches('end time'),
+         'eligibility' = matches('Eligibility'),
+         'reading_compr' = matches('select the statement that is correct'),
+         'additional_feedback' = matches('8) Write any additional feedback here'))
+
+# df_meta_clean
+
+df_meta_clean %>% 
+  select(level_of_vision)
+
+df_meta_clean %>% 
+  ggplot(., aes(x=screenreader_freq)) +
+    geom_histogram(stat="count")
+
+df_meta_clean %>% 
+  select(screenreader_type)
+
+df_meta_clean %>% 
+  select(browser)
+
+df_meta_clean %>% 
+  mutate_at(vars(age), funs(as.integer(.))) %>% 
+  ggplot(., aes(x=age)) +
+    geom_histogram(stat="count")
+
+df_meta_clean %>% 
+  mutate_at(vars(gender), funs(str_to_lower(.))) %>% 
+  ggplot(., aes(x=gender)) +
+    geom_histogram(stat="count")
+
+df_meta_clean %>% 
+  ggplot(., aes(x=study_clarity)) +
+    geom_histogram(stat="count") +
+    theme(axis.text.x = element_text(angle=30, hjust=1))
+
+df_meta_clean %>% 
+  ggplot(., aes(x=eligibility)) +
+    geom_histogram(stat="count")
+
+df_meta_clean %>% 
+  ggplot(., aes(x=reading_compr)) +
+    geom_histogram(stat="count")
+
+df_meta_clean %>% 
+  select(study_clarity, additional_feedback)
+
+# view(df_meta_clean)
+
+```
+
+
+```{r blv exp setup load, message=FALSE, warning=FALSE, include=FALSE}
+csv1 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 1 .csv")) %>% 
+  mutate(trial=1:19)
+csv2 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 2 .csv")) %>% 
+  mutate(trial=1:19)
+csv3 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 3 .csv")) %>% 
+  mutate(trial=1:19)
+csv4 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 4 .csv")) %>% 
+  mutate(trial=1:19)
+csv5 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 5 .csv")) %>% 
+  mutate(trial=1:19)
+csv6 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 6 .csv")) %>% 
+  mutate(trial=1:19)
+csv7 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 7 .csv")) %>% 
+  mutate(trial=1:19)
+csv8 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 8 .csv")) %>% 
+  mutate(trial=1:19)
+csv9 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 9 .csv")) %>% 
+  mutate(trial=1:19)
+csv10 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 10 .csv")) %>% 
+  mutate(trial=1:19)
+csv11 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 11 .csv")) %>% 
+  mutate(trial=1:19)
+csv12 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 12 .csv")) %>% 
+  mutate(trial=1:19)
+csv13 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 13 .csv")) %>% 
+  mutate(trial=1:19)
+csv14 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 14 .csv")) %>% 
+  mutate(trial=1:19)
+csv15 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 15 .csv")) %>% 
+  mutate(trial=1:19)
+csv16 = read_csv(here("behavioral_experiments", "evaluation_blv", "data", "blv_pilot_csv 16 .csv")) %>% 
+  mutate(trial=1:19)
+```
+
+
+```{r data prep, message=FALSE, warning=FALSE, include=FALSE}
+
+get_participant_data <- function(data_participant, data_csv) {
+  
+  get_bytrial_data <- function(data_trial, trial) {
+    if (trial == 1) {
+      trial_indic = "[).]$"
+    } else {
+      trial_indic = paste("_", trial-1, "$", sep="")
+    }
+    
+    df_bytrial = data_trial %>% 
+      select(-"1) Please describe your level of vision.", -"8) Write any additional feedback here.") %>% 
+      select(matches(paste("^[0-9]).*", trial_indic, sep=""))) %>% 
+      mutate(trial=trial) %>% 
+      rename(q_irrelevance = matches("extra information unnecessary"),
+             q_relevance = matches("relevant aspects"),
+             q_imgfit = matches("understand why the image occurs"),
+             q_reconstructivity = matches("imagine this image"),
+             q_overall = matches("overall nonvisual accessibility"),
+             q_oremainingqs = matches("remaining questions"),
+             q_ogoodparts = matches("particularly good"),
+             q_obadparts = matches("particularly bad"),
+             q_ocomments = matches("additional comments"))
+    
+    return(df_bytrial)
+  }
+  
+  df_t1 = get_bytrial_data(data_participant, 1)
+  df_t2 = get_bytrial_data(data_participant, 2)
+  df_t3 = get_bytrial_data(data_participant, 3)
+  df_t4 = get_bytrial_data(data_participant, 4)
+  df_t5 = get_bytrial_data(data_participant, 5)
+  df_t6 = get_bytrial_data(data_participant, 6)
+  df_t7 = get_bytrial_data(data_participant, 7)
+  df_t8 = get_bytrial_data(data_participant, 8)
+  df_t9 = get_bytrial_data(data_participant, 9)
+  df_t10 = get_bytrial_data(data_participant, 10)
+  df_t11 = get_bytrial_data(data_participant, 11)
+  df_t12 = get_bytrial_data(data_participant, 12)
+  df_t13 = get_bytrial_data(data_participant, 13)
+  df_t14 = get_bytrial_data(data_participant, 14)
+  df_t15 = get_bytrial_data(data_participant, 15)
+  df_t16 = get_bytrial_data(data_participant, 16)
+  df_t17 = get_bytrial_data(data_participant, 17)
+  df_t18 = get_bytrial_data(data_participant, 18)
+  df_t19 = get_bytrial_data(data_participant, 19)
+  
+  df_t = df_t1 %>% 
+    bind_rows(df_t2) %>% 
+    bind_rows(df_t3) %>% 
+    bind_rows(df_t4) %>% 
+    bind_rows(df_t5) %>% 
+    bind_rows(df_t6) %>% 
+    bind_rows(df_t7) %>% 
+    bind_rows(df_t8) %>% 
+    bind_rows(df_t9) %>% 
+    bind_rows(df_t10) %>% 
+    bind_rows(df_t11) %>% 
+    bind_rows(df_t12) %>% 
+    bind_rows(df_t13) %>% 
+    bind_rows(df_t14) %>% 
+    bind_rows(df_t15) %>% 
+    bind_rows(df_t16) %>% 
+    bind_rows(df_t17) %>% 
+    bind_rows(df_t18) %>% 
+    bind_rows(df_t19) %>% 
+    merge(data_csv, by="trial")
+  
+  return(df_t)
+  
+}
+
+df_full_1 = get_participant_data(df_1, csv1) %>% 
+  mutate(participant="p1")
+df_full_2 = get_participant_data(df_2, csv2) %>% 
+  mutate(participant="p2")
+df_full_3 = get_participant_data(df_3, csv3) %>% 
+  mutate(participant="p3")
+df_full_4 = get_participant_data(df_4, csv4) %>% 
+  mutate(participant="p4")
+df_full_5 = get_participant_data(df_5, csv5) %>% 
+  mutate(participant="p5")
+df_full_6 = get_participant_data(df_6, csv6) %>% 
+  mutate(participant="p6")
+df_full_7 = get_participant_data(df_7, csv7) %>% 
+  mutate(participant="p7")
+df_full_8 = get_participant_data(df_8, csv8) %>% 
+  mutate(participant="p8")
+df_full_9 = get_participant_data(df_9, csv9) %>% 
+  mutate(participant="p9")
+df_full_10 = get_participant_data(df_10, csv10) %>% 
+  mutate(participant="p10")
+df_full_11 = get_participant_data(df_11, csv11) %>% 
+  mutate(participant="p11")
+df_full_12 = get_participant_data(df_12, csv12) %>% 
+  mutate(participant="p12")
+df_full_13 = get_participant_data(df_13, csv13) %>% 
+  mutate(participant="p13")
+df_full_14 = get_participant_data(df_14, csv14) %>% 
+  mutate(participant="p14")
+df_full_15 = get_participant_data(df_15, csv15) %>% 
+  mutate(participant="p15")
+df_full_16 = get_participant_data(df_16, csv16) %>% 
+  mutate(participant="p16")
+
+df_full = df_full_1 %>% 
+  bind_rows(df_full_2) %>%
+  bind_rows(df_full_3) %>% 
+  bind_rows(df_full_4) %>% 
+  bind_rows(df_full_5) %>% 
+  bind_rows(df_full_6) %>% 
+  bind_rows(df_full_7) %>% 
+  bind_rows(df_full_8) %>% 
+  bind_rows(df_full_9) %>% 
+  bind_rows(df_full_10) %>% 
+  bind_rows(df_full_11) %>% 
+  bind_rows(df_full_12) %>%
+  bind_rows(df_full_13) %>% 
+  bind_rows(df_full_14) %>% 
+  bind_rows(df_full_15) %>%
+  bind_rows(df_full_16)
+
+# glimpse(df_full)
+# view(df_full)
+
+source(here("analyses", "additional_analyses", "helpers", "mappings.R"))
+
+df_full %>%
+  select(participant, img_id, context, description, q_reconstructivity, q_relevance, q_irrelevance, q_imgfit, q_overall, q_oremainingqs, q_ogoodparts, q_obadparts, q_ocomments) %>%
+  # merge(df_img_lookup, by=c("description")) %>%
+  merge(df_articles, by=c("context")) %>%
+  write_csv(here("behavioral_data", "blv_data_all.csv"))
+
+df_full %>%
+  select(participant, img_id, context, description, q_reconstructivity, q_relevance, q_irrelevance, q_imgfit, q_overall) %>%
+  # merge(df_img_lookup, by=c("description")) %>%
+  filter(img_id != "sculpture.png",
+         img_id != "guitar.png") %>%
+  merge(df_articles, by=c("context")) %>%
+  write_csv(here("behavioral_data", "blv_data_criticaltrials.csv"))
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+df_sighted = read_csv(here("behavioral_data", "sighted_data_all.csv"))
+
+unique(df_sighted$img_id)
+
+glimpse(df_sighted)
+```
+
+
+# Attention checks
+
+## BLV participants
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+df_attchecks_nonsighted = df_full %>% 
+  mutate(attention_checks = (context == "Guitar" | context == "Sculpture")) %>% 
+  filter(attention_checks) %>% 
+  select(participant, trial, q_irrelevance, q_relevance, q_imgfit, q_reconstructivity, q_overall, context) %>% 
+  gather(question, value, -participant, -trial, -context) %>% 
+  mutate_at(vars(value), funs(as.numeric(.))) %>% 
+  mutate(vision_level = "non-sighted")
+
+df_attchecks_nonsighted %>% 
+  ggplot(., aes(x=question, y=value)) +
+    facet_wrap(vars(context)) +
+    geom_jitter(alpha = 0.2) +
+    stat_summary(fun = "mean", 
+                 position = position_dodge(0.7),
+                 size = 4,
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 position = position_dodge(0.7),
+                 size = .4,
+                 width = 0.3) +
+    theme(axis.text.x = element_text(angle=45, hjust=1)) +
+    theme(legend.position='top')
+    
+```
+
+## BLV vs. sighted participants
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+df_attchecks_sighted = df_sighted %>% 
+  mutate(attention_checks = (context == "Guitar" | context == "Sculpture")) %>% 
+  filter(attention_checks) %>% 
+  # select(anon_worker_id, trial_number, allrelevant_preimg, allrelevant_postimg, noirrelevant_preimg, noirrelevant_postimg, imagefit_preimg, imagefit_postimg, overall_preimg, overall_postimg, reconstructivity_preimg, context) %>% 
+  gather(question_window, value, -anon_worker_id, -trial_number, -context, -img_id, -description, -attention_checks, -article_text, -img_file) %>% 
+  separate(question_window, c("question", "window"), sep="\\.") %>% 
+  mutate_at(vars(value), funs(as.numeric(.))) %>% 
+  mutate_at(vars(window), funs(fct_relevel(., c("preimg", "postimg")))) %>% 
+  # mutate_at(vars(question), funs(case_when(
+  #   .=="allrelevant" ~ "q_relevance",
+  #   .=="noirrelevant" ~ "q_irrelevance",
+  #   .=="imagefit" ~ "q_imgfit",
+  #   .=="overall" ~ "q_overall",
+  #   .=="reconstructivity" ~ "q_reconstructivity",
+  #   TRUE ~ "FIRE"
+  # ))) %>% 
+  rename(participant = "anon_worker_id") %>% 
+  mutate(vision_level = "sighted")
+
+# glimpse(df_attchecks_sighted)
+# view(df_attchecks_sighted)
+
+# df_attchecks_sighted %>% 
+#   ggplot(., aes(x=question, y=value, color=window)) +
+#     facet_wrap(vars(context)) +
+#     geom_jitter(alpha = 0.2) +
+#     stat_summary(fun = "mean", 
+#                  position = position_dodge(0.7),
+#                  size = 4,
+#                  geom = "point") +
+#     stat_summary(fun.data = "mean_cl_boot",
+#                  geom = "errorbar",
+#                  position = position_dodge(0.7),
+#                  size = .4,
+#                  width = 0.3) +
+#     theme(axis.text.x = element_text(angle=45, hjust=1)) +
+#     theme(legend.position='top')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+df_attchecks = df_attchecks_nonsighted %>% 
+  bind_rows(df_attchecks_sighted)
+
+df_attchecks %>% 
+  ggplot(., aes(x=question, y=value, color=window)) +
+    facet_wrap(vars(context)) +
+    geom_jitter(alpha = 0.2) +
+    stat_summary(fun = "mean", 
+                 position = position_dodge(0.7),
+                 size = 4,
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 position = position_dodge(0.7),
+                 size = .4,
+                 width = 0.3) +
+    theme(axis.text.x = element_text(angle=45, hjust=1)) +
+    theme(legend.position='top')
+```
+
+# Correlations between questions
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library("corrplot")
+
+df_cor = df_full %>% 
+  select(q_imgfit, q_irrelevance, q_overall, q_reconstructivity, q_relevance) %>% 
+  cor(round(., 2))
+df_cor %>% 
+  corrplot(., method="number", type="upper", tl.col="black", tl.srt=45)
+
+```
+
+
+<!-- # Interannotator agreement -->
+
+```{r eval=FALSE, include=FALSE}
+
+library("icr")
+
+# BLV participants
+# overall: 0.264
+df_agr_nonsighted = df_full %>% 
+  select(q_overall, description, participant) %>% 
+  spread(description, q_overall) %>% 
+  select(-participant)
+krippalpha(df_agr_nonsighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# relevance: 0.181
+df_agr_nonsighted = df_full %>% 
+  select(q_relevance, description, participant) %>% 
+  spread(description, q_relevance) %>% 
+  select(-participant)
+krippalpha(df_agr_nonsighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# irrelevance: 0.012
+df_agr_nonsighted = df_full %>% 
+  select(q_irrelevance, description, participant) %>% 
+  spread(description, q_irrelevance) %>% 
+  select(-participant)
+krippalpha(df_agr_nonsighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# imgfit: 0.404
+df_agr_nonsighted = df_full %>% 
+  select(q_imgfit, description, participant) %>% 
+  spread(description, q_imgfit) %>% 
+  select(-participant)
+krippalpha(df_agr_nonsighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# reconstructivity: 0.174
+df_agr_nonsighted = df_full %>% 
+  select(q_reconstructivity, description, participant) %>% 
+  spread(description, q_reconstructivity) %>% 
+  select(-participant)
+krippalpha(df_agr_nonsighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+
+
+# Sighted participants: preimg
+# overall: 0.164
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_overall.preimg, description, anon_worker_id) %>% 
+  spread(description, q_overall.preimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# relevance: 0.280
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_relevance.preimg, description, anon_worker_id) %>% 
+  spread(description, q_relevance.preimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# irrelevance: 0.266
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_irrelevance.preimg, description, anon_worker_id) %>% 
+  spread(description, q_irrelevance.preimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# imgfit: 0.494
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_imgfit.preimg, description, anon_worker_id) %>% 
+  spread(description, q_imgfit.preimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# reconstructivity: 0.066
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_reconstructivity.preimg, description, anon_worker_id) %>% 
+  spread(description, q_reconstructivity.preimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+
+# Sighted participants: postimg
+# overall: 0.247
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_overall.postimg, description, anon_worker_id) %>% 
+  spread(description, q_overall.postimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# relevance: 0.234
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_relevance.postimg, description, anon_worker_id) %>% 
+  spread(description, q_relevance.postimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# irrelevance: 0.290
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_irrelevance.postimg, description, anon_worker_id) %>% 
+  spread(description, q_irrelevance.postimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+# imgfit: 0.190
+df_agr_sighted = df_sighted %>% 
+  filter(description %in% unique(df_full$description)) %>% 
+  select(q_imgfit.postimg, description, anon_worker_id) %>% 
+  spread(description, q_imgfit.postimg) %>% 
+  select(-anon_worker_id)
+krippalpha(df_agr_sighted, metric="ordinal", bootstrap = TRUE)["alpha"]
+```

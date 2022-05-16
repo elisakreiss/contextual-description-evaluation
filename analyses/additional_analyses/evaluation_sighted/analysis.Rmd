@@ -1,0 +1,727 @@
+---
+title: "Description Evaluation Study (Sighted Participants)"
+# output: html_document
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r data import, include=FALSE}
+library(cowplot)
+library(plyr)
+library(tidyverse)
+library(here)
+
+theme_set(theme_bw())
+
+df_import = read_csv(here("behavioral_data","raw","evaluation_sighted","data.csv"))
+glimpse(df_import)
+```
+
+# Experiment
+
+The experiment can be accessed [here](https://elisakreiss.github.io/contextual-description-evaluation/behavioral_experiments/evaluation_sighted/index.html).
+
+### Language comprehension qualification:
+
+```{r, echo=FALSE, out.width="50%", fig.cap="comprehension task formuation"}
+knitr::include_graphics("graphs/langcompqual.png")
+```
+
+[To start with the experiment, select the correct response for the following question.
+
+Images are pervasive across the Web -- they're embedded in news articles, tweets, and shopping websites but most of them are not accessible to people who rely on screen readers such as blind users. For instance, much less than 6% of all images on English-language Wikipedia have useful descriptions that would make them accessible. Recen work in computer science is trying to combat this issue.
+
+The passage points out that ...
+
+- recent research is trying to figure out how to make images accessible.
+- 6% of all images are uploaded by English-language speaking users.
+- image accessibility has been solved in recen years.
+- blind people make up 6% of Wikipedia's daily users.
+- Wikipedia has the least amount of images compared to other popular websites.
+
+Note: You only have 1 attempt. Please, consider your answer carefully.]
+
+<!-- ![](graphs/langcompqual.png){width=50%} -->
+
+### Trial setup
+
+```{r, echo=FALSE, out.width="75%", fig.cap="trial setup showing context and description"}
+knitr::include_graphics("graphs/contextdescription.png")
+```
+
+<!-- ![](graphs/contextdescription.png){width=75%} -->
+
+[Example display showing the title "Furniture" with the article on Furniture below it and an image description.]
+
+Questions:
+
+1.  Imagefit: "How well do you understand why the image occurs in this article?" (Not well -- Very well)
+2.  Reconstructivity (only asked before viewing the image): "How well can you imagine this image in your mind?" (Not well -- Very well)
+3.  Allrelevant: "How well does the description capture the relevant aspects of the image?" (Not well -- Very well)
+4.  Noirrelevant: "Does the description mention too much irrelevant information for accessibility needs?" (Too much -- Not too much)
+5.  Overall: "For accessibility, how good is the description overall?" (Not good -- Very good)
+
+
+# Qualification Task Analysis
+
+```{r qualification passed, echo=FALSE, warning=FALSE}
+
+df_qualif = df_import %>% 
+  distinct(anon_worker_id, botresponse, continue) %>% 
+  mutate(correct_response = str_detect(botresponse, "correct"))
+
+print(paste(nrow(filter(df_qualif, correct_response)), 
+            "out of", 
+            nrow(df_qualif), 
+            "participants passed the qualification task."))
+
+print(paste(nrow(filter(df_qualif, continue)),
+            "out of the",
+            nrow(filter(df_qualif, correct_response)),
+            "participants who responded correctly chose to continue."))
+
+# comments
+# unique(df_import$comments)
+
+```
+
+# Main Experiment Analysis
+
+```{r main data, include=FALSE, warning=FALSE}
+df_main = df_import %>% 
+  filter(continue)
+```
+
+
+## Subject pool
+
+```{r responses to postquestionnaire, echo=FALSE, fig.height=2.5, fig.width=4, message=FALSE, warning=FALSE}
+# check responses to post questionnaire, which participants I need to exclude (e.g., HitCorrect and NativeLanguage)
+df_hitcorrect = df_main %>% 
+  mutate_at(vars(HitCorrect),
+            funs(ifelse(HitCorrect==0,"no",
+                        ifelse(HitCorrect==404,"confused","yes"))))
+
+df_hitcorrect %>% 
+  select(HitCorrect, anon_worker_id) %>% 
+  distinct() %>% 
+  ggplot(.,aes(x=HitCorrect)) +
+    geom_bar(width = .5,
+             color = "black",
+             fill = "orange") +
+    xlab("Did you do the hit correctly")
+
+# languages
+unique(df_main$languages)
+
+# comments
+unique(df_main$comments)
+```
+
+Only less than 8 participants indicated they were either confused or didn't provide a response to the question of whether they think they did the experiment correctly.
+
+## Reaction Times
+
+```{r reaction times, echo=FALSE, fig.height=3.5, fig.width=6, message=FALSE, warning=FALSE}
+
+df_rts = df_main %>% 
+  select(anon_worker_id, trial_number, rt_trial, rt_article_read_seconds, rt_qs_noimage_seconds, rt_qs_wimage_seconds, timeSpent) %>% 
+  mutate_at(vars(anon_worker_id), funs(paste(.)))
+
+df_rts %>% 
+  distinct(anon_worker_id, timeSpent) %>% 
+  ggplot(., aes(x=timeSpent)) +
+    geom_histogram(
+      fill="lightgrey",
+      color="black"
+    ) +
+    coord_cartesian(xlim = c(0,80))
+
+
+```
+
+The majority of participants spent between 18 and 40 minutes with the peak between 20 and 30. This is encouraging given our approximation of 25 minutes.
+
+```{r reaction times over trials, echo=FALSE, fig.height=3.5, fig.width=6, message=FALSE, warning=FALSE}
+
+df_rts %>% 
+  ggplot(., aes(x=trial_number,
+                y=rt_trial)) +
+    geom_point(alpha=0.2) +
+    stat_summary(fun = "mean", 
+                 size = 3,
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 size = .3,
+                 width = 0.2) +
+    coord_cartesian(ylim = c(0,400))
+
+```
+
+The times it takes participants to complete a single trial doesn't drastically change throughout the experiment. The first trial is an outlier with on average 2.5 minutes. The trials after take on average 100 seconds each, decreasing to 80 seconds on the last trials.
+
+```{r reaction times all, echo=FALSE, fig.height=6, fig.width=8, warning=FALSE}
+
+df_rts %>% 
+  gather(rt_window, rt, -trial_number, -anon_worker_id, -timeSpent) %>% 
+  ggplot(., aes(x=reorder(anon_worker_id,-rt), 
+                y=rt,
+                color=rt_window)) +
+    geom_point(alpha = 0.1) +
+    stat_summary(fun = "mean", 
+                 size = 3,
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 size = .3,
+                 width = 0.2) +
+    theme(axis.text.x = element_text(angle=90, hjust=1)) +
+    coord_cartesian(ylim = c(0,300)) +
+    theme(legend.position = "top")
+
+```
+
+There is quite a lot of variation across workers where the slowest spend on average 200 seconds per trial throughout and the fastest only about 30. However, the majority is again in the 50-80 second range. We also collected the times for each trial spent on reading, and answering the questions with and without seeing the image, but there is no remarkable pattern observable.
+
+
+## Data prep
+
+### Participant Exclusions
+
+We excluded participants who spent less than 19 minutes on the task and one participant where we had some data logging issues.
+
+```{r exclusions, echo=FALSE}
+
+df_clean = df_main %>% 
+  filter(timeSpent > 18,
+         !str_detect(q5_sliderval, "0"))
+
+print(paste("After exclusions", 
+            nrow(distinct(df_clean, anon_worker_id)), 
+            "out of", 
+            nrow(distinct(df_main, anon_worker_id)), 
+            "participants remain. (",
+            nrow(distinct(df_main, anon_worker_id))-nrow(distinct(df_clean, anon_worker_id)),
+            "exclusions )"))
+
+```
+
+
+
+```{r data prep, include=FALSE, warning=FALSE}
+
+df_likertresponses = df_clean %>% 
+  select(anon_worker_id, trial_number, q1_sliderval, q2_sliderval, q3_sliderval, q4_sliderval, q5_sliderval, q1_type, q2_type, q3_type, q4_type, q5_type, img_id, img_file, description, context) %>%
+  mutate(overall = q5_sliderval) %>%
+  mutate(reconstructivity = case_when(
+    q1_type == "reconstructive" ~ q1_sliderval,
+    q2_type == "reconstructive" ~ q2_sliderval,
+    q3_type == "reconstructive" ~ q3_sliderval,
+    q4_type == "reconstructive" ~ q4_sliderval,
+    TRUE ~ "FIRE"
+  )) %>% 
+  mutate(allrelevant = case_when(
+    q1_type == "all_relevant" ~ q1_sliderval,
+    q2_type == "all_relevant" ~ q2_sliderval,
+    q3_type == "all_relevant" ~ q3_sliderval,
+    q4_type == "all_relevant" ~ q4_sliderval,
+    TRUE ~ "FIRE"
+  )) %>% 
+  mutate(noirrelevant = case_when(
+    q1_type == "no_irrelevant" ~ q1_sliderval,
+    q2_type == "no_irrelevant" ~ q2_sliderval,
+    q3_type == "no_irrelevant" ~ q3_sliderval,
+    q4_type == "no_irrelevant" ~ q4_sliderval,
+    TRUE ~ "FIRE"
+  )) %>% 
+  mutate(imagefit = case_when(
+    q1_type == "image_fit" ~ q1_sliderval,
+    q2_type == "image_fit" ~ q2_sliderval,
+    q3_type == "image_fit" ~ q3_sliderval,
+    q4_type == "image_fit" ~ q4_sliderval,
+    TRUE ~ "FIRE"
+  )) %>% 
+  select(-q1_sliderval, -q2_sliderval, -q3_sliderval, -q4_sliderval, -q5_sliderval,
+         -q1_type, -q2_type, -q3_type, -q4_type, -q5_type) %>%
+  mutate_at(vars(reconstructivity), funs(str_sub(., start=1, end=1))) %>% 
+  rename(reconstructivity_preimg = reconstructivity) %>% 
+  separate(allrelevant, c("allrelevant_preimg", "allrelevant_postimg"), sep="\\|") %>% 
+  separate(noirrelevant, c("noirrelevant_preimg", "noirrelevant_postimg"), sep="\\|") %>% 
+  separate(imagefit, c("imagefit_preimg", "imagefit_postimg"), sep="\\|") %>% 
+  separate(overall, c("overall_preimg", "overall_postimg"), sep="\\|") %>% 
+  mutate_at(vars(overall_preimg, overall_postimg, reconstructivity_preimg, allrelevant_preimg, allrelevant_postimg, noirrelevant_preimg, noirrelevant_postimg, imagefit_preimg, imagefit_postimg), funs(as.numeric(.))) %>% 
+  mutate(change_allrelevant = !(allrelevant_preimg == allrelevant_postimg)) %>% 
+  mutate(change_noirrelevant = !(noirrelevant_preimg == noirrelevant_postimg)) %>% 
+  mutate(change_imagefit = !(imagefit_preimg == imagefit_postimg)) %>% 
+  mutate(change_overall = !(overall_preimg == overall_postimg)) %>% 
+  group_by(anon_worker_id) %>% 
+  mutate(changerate_allrelevant = sum(change_allrelevant)/19) %>% 
+  mutate(changerate_noirrelevant = sum(change_noirrelevant)/19) %>% 
+  mutate(changerate_imagefit = sum(change_imagefit)/19) %>% 
+  mutate(changerate_overall = sum(change_overall)/19) %>% 
+  ungroup()
+
+df_sighted = df_likertresponses %>% 
+  rename(q_relevance.preimg = allrelevant_preimg,
+         q_irrelevance.preimg = noirrelevant_preimg,
+         q_imgfit.preimg = imagefit_preimg,
+         q_overall.preimg = overall_preimg,
+         q_reconstructivity.preimg = reconstructivity_preimg,
+         q_relevance.postimg = allrelevant_postimg,
+         q_irrelevance.postimg = noirrelevant_postimg,
+         q_imgfit.postimg = imagefit_postimg,
+         q_overall.postimg = overall_postimg) %>% 
+  select(anon_worker_id, trial_number, img_id, img_file, description, context, q_overall.preimg, q_overall.postimg, q_reconstructivity.preimg, q_relevance.preimg, q_relevance.postimg, q_irrelevance.preimg, q_irrelevance.postimg, q_imgfit.preimg, q_imgfit.postimg) %>% 
+  filter(anon_worker_id != "689917876213506")
+
+source(here("analyses", "additional_analyses", "helpers", "mappings.R"))
+
+df_sighted %>% 
+  # merge(df_img_lookup, by=c("description")) %>% 
+  # filter(img_id != "park1",
+  #        img_id != "guitar1") %>% 
+  merge(df_articles, by=c("context")) %>% 
+  write_csv(here("behavioral_data", "sighted_data_all.csv"))
+
+df_sighted %>% 
+  # merge(df_img_lookup, by=c("description")) %>% 
+  filter(img_id != "park1",
+         img_id != "guitar1") %>%
+  merge(df_articles, by=c("context")) %>% 
+  write_csv(here("behavioral_data", "sighted_data_criticaltrials.csv"))
+
+df_sighted %>% 
+  # merge(df_img_lookup, by=c("description")) %>% 
+  filter(img_id != "park1",
+         img_id != "guitar1") %>%
+  merge(df_articles, by=c("context")) %>% 
+  distinct(description,img_id, img_file, description, context, article_text) %>% 
+  write_csv(here("behavioral_data", "all_descriptions.csv"))
+
+# write_csv(df_likertresponses, here("analyses", "pilots", "04_descr_eval_nonsighted", "sighted_data.csv"))
+```
+
+## Pre- vs. Post-image Change Rate
+
+```{r change rate, echo=FALSE, fig.height=4, fig.width=5, warning=FALSE}
+
+df_likertresponses %>% 
+  distinct(anon_worker_id, changerate_allrelevant, changerate_noirrelevant, changerate_imagefit, changerate_overall) %>% 
+  gather(question, changerate, -anon_worker_id) %>% 
+  ggplot(., aes(x=question, y=changerate, color=as.character(anon_worker_id))) + 
+    geom_jitter(alpha = 0.5) +
+    stat_summary(fun = "mean", 
+                 size = 3,
+                 color = "black",
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 color = "black",
+                 size = .3,
+                 width = 0.2) +
+    theme(axis.text.x = element_text(angle=45, hjust=1)) +
+    theme(legend.position='none')
+
+```
+
+On average, participants change their ratings after seeing the image a little less than half of the time for almost all questions (i.e., whether all relevant information are mentioned, the image fits in the article, and the overall rating of the description). The change rate is notably lower for the question of how much irrelevant information was mentioned. It seems intuitive that contextual irrelevance can be appropriately assessed even without image access and participants therefore don't often have to revise their answer.
+
+```{r change rate by worker, echo=FALSE, fig.height=10, fig.width=8, warning=FALSE}
+df_likertresponses %>% 
+  distinct(anon_worker_id, trial_number, change_allrelevant, change_noirrelevant, change_imagefit, change_overall) %>% 
+  gather(question, change, -anon_worker_id, -trial_number) %>% 
+  ggplot(., aes(x=question, 
+                y=as.numeric(change), 
+                color=question)) + 
+    facet_wrap(vars(anon_worker_id)) +
+    # geom_point(alpha = 0.7) +
+    stat_summary(fun = "mean", 
+                 size = 3,
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 size = .3,
+                 width = 0.2) +
+    theme(axis.text.x = element_text(angle=45, hjust=1)) +
+    theme(legend.position="none") +
+    geom_hline(yintercept=0.8)
+
+```
+
+Individual workers show distinct patterns with regards to the change rate patterns for each question. Notable is that if participants made random selections, they would have an average change rate of 0.8 for each question which is rarely true for any worker. This might be a potential exclusion criterion for future studies.
+
+## Pre- vs. Post-image Ratings
+
+```{r ratings, echo=FALSE, fig.height=4.5, fig.width=4.5, warning=FALSE}
+
+df_likertresponses %>% 
+  select(anon_worker_id, trial_number, allrelevant_preimg, allrelevant_postimg, noirrelevant_preimg, noirrelevant_postimg, imagefit_preimg, imagefit_postimg, overall_preimg, overall_postimg) %>% 
+  gather(question_window, value, -anon_worker_id, -trial_number) %>% 
+  separate(question_window, c("question", "window"), sep="_") %>% 
+  mutate_at(vars(value), funs(as.numeric(.))) %>% 
+  mutate_at(vars(window), funs(fct_relevel(., c("preimg", "postimg")))) %>% 
+  ggplot(., aes(x=window, y=value)) +
+    facet_wrap(vars(question)) +
+    geom_jitter(alpha=0.1) +
+    stat_summary(fun = "mean", 
+                 size = 3,
+                 color = "black",
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 color = "black",
+                 size = .3,
+                 width = 0.2)
+    # theme(axis.text.x = element_text(angle=45, hjust=1))
+
+```
+
+When comparing ratings before and after image exposure, the average ratings are pretty much identical for most questions (at around 3.5). The only significant difference is from the question of how well participants understand why an image occurs in a specific article. Here, ratings tend to increase slightly after seeing the image (average rating of 3.5 vs. 3.9). 
+
+## Attention Checks
+
+We included two attention checks with carefully designed descriptions to test whether participants interpret the questions and scales in the intended ways.
+
+The first one showed the Wikipedia article on guitars with an image of band playing in a coffee place that includes a singer, a drummer, and two guitar players. Overall, there is a lot going on in the picture and the guitars don't take on a central role at all.
+
+```{r, echo=FALSE, out.width="40%", fig.cap="guitar attention check image showing a crowded bar with a band playing; two guitars are visible"}
+knitr::include_graphics("graphs/attcheck_guitar.png")
+```
+
+<!-- ![attcheckguitar](graphs/attcheck_guitar.png){width=40%} -->
+
+The constructed description is "An orange and white guitar and a brown and white guitar being played." This description only mentions content relevant in this particular article but loses a lot of the overall impressions from the image.
+
+The second attention check showed the Wikipedia article on sculptures with an image of a park where a sculpture is quite centrally in the foreground. 
+
+```{r, echo=FALSE, out.width="40%", fig.cap="sculpture attention check image showing a sculpture foregrounded in the image with a nice park scene in the background"}
+knitr::include_graphics("graphs/attcheck_sculpture.png")
+```
+
+<!-- ![attchecksculpture](graphs/attcheck_sculpture.png){width=40%} -->
+
+The constructed description is "A park on a nice day with lots of grass and trees and a pond." This description provides a good overall impression of the image but neglects the contextually relevant information.
+
+
+```{r attention checks, echo=FALSE, fig.height=5, fig.width=7, warning=FALSE}
+df_attchecks = df_likertresponses %>% 
+  mutate(attention_checks = (context == "Guitar" | context == "Sculpture")) %>% 
+  filter(attention_checks) %>% 
+  select(anon_worker_id, trial_number, allrelevant_preimg, allrelevant_postimg, noirrelevant_preimg, noirrelevant_postimg, imagefit_preimg, imagefit_postimg, overall_preimg, overall_postimg, reconstructivity_preimg, context) %>% 
+  gather(question_window, value, -anon_worker_id, -trial_number, -context) %>% 
+  separate(question_window, c("question", "window"), sep="_") %>% 
+  mutate_at(vars(value), funs(as.numeric(.))) %>% 
+  mutate_at(vars(window), funs(fct_relevel(., c("preimg", "postimg"))))
+
+# write_csv(here("analyses", "pilots", "04_descr_eval_nonsighted", "att_checks.csv"))
+
+df_attchecks %>% 
+  ggplot(., aes(x=question, y=value, color=window)) +
+    facet_wrap(vars(context)) +
+    geom_jitter(alpha = 0.2) +
+    stat_summary(fun = "mean", 
+                 position = position_dodge(0.7),
+                 size = 4,
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 position = position_dodge(0.7),
+                 size = .4,
+                 width = 0.3) +
+    theme(axis.text.x = element_text(angle=45, hjust=1)) +
+    theme(legend.position='top')
+    
+
+```
+
+Observed differences in ratings: 
+
+In the overall rating of the description, the guitar description is judged as being better than the sculpture description (average rating of 3.3 vs. 1.8). This nicely illustrates that losing out on the overall impression is judged as less problematic than missing out on information that are contextually relevant. However, for both the overall judgment decreases after seeing the image.
+
+The sculpture description is rated as having too much irrelevant information, especially compared with the guitar description (noirrelevant). 
+
+In the sculpture context, the image is judged to fit the article much better after seeing it (imagefit). A small reverse effect is found in the guitar description. 
+
+Whether all relevant information were mentioned decreases in the guitar context after seeing the image. 
+
+<!-- Guitar and sculpture descriptions don't differ when it comes to the reconstructivity assessment.  -->
+
+
+## Correlations
+
+### Goodness correlations
+
+```{r goodness corr, echo=FALSE, fig.height=5, fig.width=7, message=FALSE, warning=FALSE}
+
+df_overallcorr_preimg = df_likertresponses %>% 
+  select(anon_worker_id, trial_number, allrelevant_preimg, noirrelevant_preimg, imagefit_preimg, overall_preimg, reconstructivity_preimg, context) %>% 
+  gather(question_window, value, -anon_worker_id, -trial_number, -context, -overall_preimg) %>% 
+  mutate_at(vars(value, overall_preimg), funs(as.numeric(.)))
+
+
+df_overallcorr_preimg %>% 
+  ggplot(., aes(x=overall_preimg, y=value, color=question_window)) +
+    geom_jitter(alpha=0.1) +
+    # geom_smooth(method="lm", alpha=0.5) +
+    geom_line(stat="smooth",method = "lm",
+                size = 1,
+                alpha = 0.3) +
+    stat_summary(fun = "mean", 
+                 position = position_dodge(0.7),
+                 size = 4,
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 position = position_dodge(0.7),
+                 size = .4,
+                 width = 0.3)
+
+df_overallcorr_postimg = df_likertresponses %>% 
+  select(anon_worker_id, trial_number, allrelevant_postimg, noirrelevant_postimg, imagefit_postimg, overall_postimg, reconstructivity_preimg, context) %>% 
+  gather(question_window, value, -anon_worker_id, -trial_number, -context, -overall_postimg) %>% 
+  mutate_at(vars(value, overall_postimg), funs(as.numeric(.)))
+
+df_overallcorr_postimg %>% 
+  ggplot(., aes(x=overall_postimg, y=value, color=question_window)) +
+    geom_jitter(alpha=0.1) +
+    geom_line(stat="smooth",method = "lm",
+              size = 1,
+              alpha = 0.3) +
+    stat_summary(fun = "mean", 
+                 position = position_dodge(0.7),
+                 size = 4,
+                 geom = "point") +
+    stat_summary(fun.data = "mean_cl_boot",
+                 geom = "errorbar",
+                 position = position_dodge(0.7),
+                 size = .4,
+                 width = 0.3)
+
+preimg_rec = cor(as.numeric(df_likertresponses$overall_preimg), as.numeric(df_likertresponses$reconstructivity_preimg))
+preimg_allr = cor(as.numeric(df_likertresponses$overall_preimg), as.numeric(df_likertresponses$allrelevant_preimg))
+preimg_noirr = cor(as.numeric(df_likertresponses$overall_preimg), as.numeric(df_likertresponses$noirrelevant_preimg))
+preimg_imgf = cor(as.numeric(df_likertresponses$overall_preimg), as.numeric(df_likertresponses$imagefit_preimg))
+
+print(paste("The correlation of overall ratings before the image is seen with reconstructivity:",
+      round(preimg_rec, 2),
+      "; allrelevant:",
+      round(preimg_allr, 2),
+      "; noirrelevant:",
+      round(preimg_noirr, 2),
+      "; imagefit:",
+      round(preimg_imgf, 2),
+      "."))
+
+postimg_rec = cor(as.numeric(df_likertresponses$overall_postimg), as.numeric(df_likertresponses$reconstructivity_preimg))
+postimg_allr = cor(as.numeric(df_likertresponses$overall_postimg), as.numeric(df_likertresponses$allrelevant_postimg))
+postimg_noirr = cor(as.numeric(df_likertresponses$overall_postimg), as.numeric(df_likertresponses$noirrelevant_postimg))
+postimg_imgf = cor(as.numeric(df_likertresponses$overall_postimg), as.numeric(df_likertresponses$imagefit_postimg))
+
+print(paste("The correlation of overall ratings after the image is seen with reconstructivity:",
+      round(postimg_rec, 2),
+      "; allrelevant:",
+      round(postimg_allr, 2),
+      "; noirrelevant:",
+      round(postimg_noirr, 2),
+      "; imagefit:",
+      round(postimg_imgf, 2),
+      "."))
+
+```
+
+### All correlations
+
+```{r rating corrs, echo=FALSE, fig.height=6, fig.width=6, warning=FALSE}
+# install.packages("corrplot")
+library("corrplot")
+
+df_cor_preimg = df_likertresponses %>% 
+  select(allrelevant_preimg, noirrelevant_preimg, imagefit_preimg, overall_preimg, reconstructivity_preimg) %>% 
+  cor(round(., 2))
+df_cor_preimg %>% 
+  corrplot(., method="number", type="upper", tl.col="black", tl.srt=45)
+
+df_cor_postimg = df_likertresponses %>% 
+  select(allrelevant_postimg, noirrelevant_postimg, imagefit_postimg, overall_postimg, reconstructivity_preimg) %>% 
+  cor(round(., 2))
+df_cor_postimg %>% 
+  corrplot(., method="number", type="upper", tl.col="black", tl.srt=45)
+```
+
+After the image was seen, the questions correlating the most are the overall judgment of the description and whether all relevant information were mentioned (r=0.8). This is followed by the correlation of the overall judgment and whether no irrelevant information were mentioned (r=0.49).
+
+Before the image was seen, again the questions correlating the most are the overall judgment of the description and whether all relevant information were mentioned (r=0.75). This is followed by the correlation of whether all relevant information were mentioned and whether one can understand why the image fits to the article (r=0.66).
+
+
+<!-- # CSV generation for BLV study -->
+
+```{r data n, eval=FALSE, include=FALSE}
+df_likertresponses %>% 
+  distinct(description)
+
+df_n_labels = df_likertresponses %>% 
+  select(description, img_id, context) %>% 
+  group_by(description, img_id, context) %>% 
+  summarize(count = n()) %>% 
+  ungroup()
+
+df_n_labels %>%   
+  ggplot(., aes(x=count)) +
+    facet_wrap(~context, scales = "free_x") +
+    geom_histogram()
+
+df_blv_study = df_n_labels %>% 
+  # filter(count >= 4) %>%
+  # filter(count >= 10) %>% 
+  mutate(condition = str_c(img_id, context, sep=":"))
+
+unique(df_blv_study$condition)
+unique(df_blv_study$img_id)
+unique(df_blv_study$context)
+
+# "laid_table12"          "mountains16"           "church19"             
+# "church8"               "meeting_in_progress17" "church4"              
+# "mountains9"            "laid_table14"          "living_room6"         
+# "living_room15"         "laid_table3"           "soccer_in_progress13" 
+# "soccer_in_progress10"  "meeting_in_progress2"  "meeting_in_progress7" 
+# "mountains18"           "living_room11"         "park1"          
+# "soccer_in_progress1"   "guitar1"              
+  
+
+table(df_blv_study$context)
+
+# laid_table3, laid_table12, laid_table14 : Tableware, Dinner, American cuisine
+
+shuffled_data = df_blv_study[sample(1:nrow(df_blv_study)), ]
+
+trial_ids_1 = shuffled_data %>% 
+  filter(!(context == "Guitar" | context == "Sculpture")) %>% 
+  arrange(-count) %>% 
+  group_by(context) %>% 
+  mutate(id_counter = 1:n()) %>% 
+  ungroup() %>% 
+  filter(id_counter <= 4)
+
+trial_ids_2_prep = trial_ids_1[sample(1:nrow(trial_ids_1)), ]
+trial_ids_2 = trial_ids_2_prep %>% 
+  group_by(context) %>%
+  mutate(id_counter = 1:n()) %>% 
+  ungroup()
+
+trial_ids_3_prep = trial_ids_1[sample(1:nrow(trial_ids_1)), ]
+trial_ids_3 = trial_ids_3_prep %>% 
+  group_by(context) %>%
+  mutate(id_counter = 1:n()) %>% 
+  ungroup()
+
+trial_ids_4_prep = trial_ids_1[sample(1:nrow(trial_ids_1)), ]
+trial_ids_4 = trial_ids_4_prep %>% 
+  group_by(context) %>%
+  mutate(id_counter = 1:n()) %>% 
+  ungroup()
+
+view(trial_ids_1)
+view(trial_ids_2)
+
+table(trial_ids_1$id_counter)
+
+# df_blv_study
+
+questions = c("Does the description mention extra information unnecessary for making the image accessible?:::Yes, too much:::No, just right",
+             "How well can you imagine this image in your mind?:::Not well:::Very well",
+             "How well does the description capture the relevant aspects of the image?:::Not well:::Very well",
+             "How well do you understand why the image occurs in this article?:::Not well:::Very well")
+
+
+df_articles = data.frame(
+  context = c("Consumer electronics", "Furniture", "Cooperation", "Roof", "Christian cross", "Building material", "Interior design", "Window", "Tableware", "Dinner", "American cuisine", "Competition", "Hairstyle", "Advertising", "Body of water", "Orogeny", "Montane Ecosystems", "Guitar", "Sculpture"), 
+  article_text = c("Consumer electronics or home electronics are electronic (analog or digital) equipment intended for everyday use, typically in private homes. Consumer electronics include devices used for entertainment, communications and recreation. Usually referred to as black goods due to many products being housed in black or dark casings. This term is used to distinguish them from \"white goods\" which are meant for housekeeping tasks, such as washing machines and refrigerators, although nowadays, these would be considered black goods, some of these being connected to the Internet. ",
+           "Furniture refers to movable objects intended to support various human activities such as seating (e.g., chairs, stools, and sofas), eating (tables), and sleeping (e.g., beds). Furniture is also used to hold objects at a convenient height for work (as horizontal surfaces above the ground, such as tables and desks), or to store things (e.g., cupboards and shelves). Furniture can be a product of design and is considered a form of decorative art. In addition to furniture's functional role, it can serve a symbolic or religious purpose. It can be made from many materials, including metal, plastic, and wood. Furniture can be made using a variety of woodworking joints which often reflect the local culture.",
+           "Cooperation (written as co-operation in British English) is the process of groups of organisms working or acting together for common, mutual, or some underlying benefit, as opposed to working in competition for selfish benefit. Many animal and plant species cooperate both with other members of their own species and with members of other species (symbiosis or mutualism).",
+           "A roof is the top covering of a building, including all materials and constructions necessary to support it on the walls of the building or on uprights, providing protection against rain, snow, sunlight, extremes of temperature, and wind. A roof is part of the building envelope.",
+           "The Christian cross, seen as a representation of the instrument of the crucifixion of Jesus, is the best-known symbol of Christianity. It is related to the crucifix (a cross that includes a corpus, usually a three-dimensional representation of Jesus' body) and to the more general family of cross symbols, the term cross itself being detached from the original specifically Christian meaning in modern English (as in many other western languages).",
+           "Building material is material used for construction. Many naturally occurring substances, such as clay, rocks, sand and wood, even twigs and leaves, have been used to construct buildings. Apart from naturally occurring materials, many man-made products are in use, some more and some less synthetic. The manufacturing of building materials is an established industry in many countries and the use of these materials is typically segmented into specific specialty trades, such as carpentry, insulation, plumbing, and roofing work. They provide the make-up of habitats and structures including homes.",
+           "Interior design is the art and science of enhancing the interior of a building to achieve a healthier and more aesthetically pleasing environment for the people using the space. An interior designer is someone who plans, researches, coordinates, and manages such enhancement projects. Interior design is a multifaceted profession that includes conceptual development, space planning, site inspections, programming, research, communicating with the stakeholders of a project, construction management, and execution of the design.",
+           "A window is an opening in a wall, door, roof, or vehicle that allows the passage of light and may also allow the passage of sound and sometimes air. Modern windows are usually glazed or covered in some other transparent or translucent material, a sash set in a frame in the opening; the sash and frame are also referred to as a window. Many glazed windows may be opened, to allow ventilation, or closed, to exclude inclement weather. Windows may have a latch or similar mechanism to lock the window shut or to hold it open by various amounts.",
+           "Tableware are the dishes or dishware used for setting a table, serving food and dining. It includes cutlery, glassware, serving dishes and other items for practical as well as decorative purposes. The quality, nature, variety and number of objects varies according to culture, religion, number of diners, cuisine and occasion. For example, Middle Eastern, Indian or Polynesian food culture and cuisine sometimes limits tableware to serving dishes, using bread or leaves as individual plates. Cups are not dishes. Special occasions are usually reflected in higher quality tableware.",
+           "Dinner usually refers to what is in many Western cultures the largest and most formal meal of the day, which some Westerners eat in the evening. Historically the largest meal used to be eaten around midday, and called dinner. In Western cultures, especially among the elite, it gradually migrated later in the day over the 16th to 19th centuries. However, the word \"dinner\" can have different meanings depending on culture, and may mean a meal of any size eaten at any time of day. In particular, it is still sometimes used for a meal at noon or in the early afternoon on special occasions, such as a Christmas dinner. In hot climates, people have always tended to eat the main meal in the evening, after the temperature has fallen.",
+           "American cuisine is primarily Western in origin, but has been significantly influenced by indigenous American Indians, African Americans, Asians, Pacific Islanders, and many other cultures and ethnicities, reflecting the history of the United States.",
+           "Competition is a rivalry where two or more parties strive for a common goal which cannot be shared: where one's gain is the other's loss (an example of which is a zero-sum game). Competition can arise between entities such as organisms, individuals, economic and social groups, etc. The rivalry can be over attainment of any exclusive goal, including recognition: (e.g. awards, goods, mates, status, prestige), leadership, market share, niches and scarce resources, or a territory.",
+           "A hairstyle, hairdo, or haircut refers to the styling of hair, usually on the human scalp. Sometimes, this could also mean an editing of facial or body hair. The fashioning of hair can be considered an aspect of personal grooming, fashion, and cosmetics, although practical, cultural, and popular considerations also influence some hairstyles.",
+           "Advertising is a marketing communication that employs an openly sponsored, non-personal message to promote or sell a product, service or idea. Sponsors of advertising are typically businesses wishing to promote their products or services. Advertising is differentiated from public relations in that an advertiser pays for and has control over the message. It differs from personal selling in that the message is non-personal, i.e., not directed to a particular individual. Advertising is communicated through various mass media, including traditional media such as newspapers, magazines, television, radio, outdoor advertising or direct mail; and new media such as search results, blogs, social media, websites or text messages. The actual presentation of the message in a medium is referred to as an advertisement: advert or ad for short.",
+           "A body of water or waterbody (often spelled water body) is any significant accumulation of water, generally on a planet's surface. The term most often refers to oceans, seas, and lakes, but it includes smaller pools of water such as ponds, wetlands, or more rarely, puddles. A body of water does not have to be still or contained; rivers, streams, canals, and other geographical features where water moves from one place to another are also considered bodies of water.",
+           "An orogeny is an event that leads to both structural deformation and compositional differentiation of the Earth's lithosphere (crust and uppermost mantle) at convergent plate margins. An orogen or orogenic belt develops when a continental plate crumples and is uplifted to form one or more mountain ranges; this involves a series of geological processes collectively called orogenesis. A synorogenic event is one that occurs during an orogeny.",
+           "Montane ecosystems are found on the slopes of mountains. The alpine climate in these regions strongly affects the ecosystem because temperatures fall as elevation increases, causing the ecosystem to stratify. This stratification is a crucial factor in shaping plant community, biodiversity, metabolic processes and ecosystem dynamics for montane ecosystems. Dense montane forests are common at moderate elevations, due to moderate temperatures and high rainfall. At higher elevations, the climate is harsher, with lower temperatures and higher winds, preventing the growth of trees and causing the plant community to transition to montane grasslands, shrublands or alpine tundra. Due to the unique climate conditions of montane ecosystems, they contain increased numbers of endemic species. Montane ecosystems also exhibit variation in ecosystem services, which include carbon storage and water supply.",
+           "The guitar is a fretted musical instrument that typically has six strings. It is held flat against the player's body and played by strumming or plucking the strings with the dominant hand, while simultaneously pressing selected strings against frets with the fingers of the opposite hand. A plectrum or individual finger picks may be used to strike the strings. The sound of the guitar is projected either acoustically, by means of a resonant chamber on the instrument, or amplified by an electronic pickup and an amplifier.",
+           "Sculpture is the branch of the visual arts that operates in three dimensions. It is one of the plastic arts. Durable sculptural processes originally used carving (the removal of material) and modelling (the addition of material, as clay), in stone, metal, ceramics, wood and other materials but, since Modernism, there has been an almost complete freedom of materials and process. A wide variety of materials may be worked by removal such as carving, assembled by welding or modelling, or moulded or cast."))
+
+
+csv1 = trial_ids %>% 
+  filter(id_counter == 1) %>% 
+  select(description, img_id, context) %>% 
+  add_row(description = "GUITAR DESCRIPTION", img_id = "guitar", context = "Guitar") %>% 
+  add_row(description = "SCULPTURE DESCRIPTION", img_id = "SCULPTURE", context = "Sculpture") %>% 
+  mutate(q1 = q_rand[1],
+         q2 = q_rand[2],
+         q3 = q_rand[3],
+         q4 = q_rand[4]) %>% 
+  left_join(., df_articles)
+
+view(csv1)
+
+shuffled_csv1 = csv1[sample(1:nrow(csv1)), ]
+
+shuffled_csv1
+
+write_csv(shuffled_csv1,"csv1.csv")
+
+trial_ids
+
+glimpse(df_import)
+
+create_csv <- function(id, data, counter) {
+   q_rand <- sample(questions)
+   csv = data %>% 
+    filter(id_counter == id) %>% 
+    select(description, img_id, context) %>% 
+    add_row(description = "An orange and white guitar and a brown and white guitar being played.", img_id = "guitar.png", context = "Guitar") %>% 
+    add_row(description = "A park on a nice day with lots of grass and trees and a pond.", img_id = "sculpture.png", context = "Sculpture") %>% 
+    mutate(q1 = q_rand[1],
+           q2 = q_rand[2],
+           q3 = q_rand[3],
+           q4 = q_rand[4]) %>% 
+    left_join(., df_articles)
+   
+  shuffled_csv = csv[sample(1:nrow(csv)), ]
+  
+  write_csv(shuffled_csv,paste("blv_pilot_csv",counter,".csv"))
+}
+
+# create_csv(1, trial_ids_1, 1)
+# create_csv(2, trial_ids_1, 2)
+# create_csv(3, trial_ids_1, 3)
+# create_csv(4, trial_ids_1, 4)
+# create_csv(1, trial_ids_2, 5)
+# create_csv(2, trial_ids_2, 6)
+# create_csv(3, trial_ids_2, 7)
+# create_csv(4, trial_ids_2, 8)
+# create_csv(1, trial_ids_3, 9)
+# create_csv(2, trial_ids_3, 10)
+# create_csv(3, trial_ids_3, 11)
+# create_csv(4, trial_ids_3, 12)
+# create_csv(1, trial_ids_4, 13)
+# create_csv(2, trial_ids_4, 14)
+# create_csv(3, trial_ids_4, 15)
+# create_csv(4, trial_ids_4, 16)
+
+```
+
+
+
+
+
+

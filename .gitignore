@@ -1,6 +1,7 @@
 ## 
 __pycache__/
 checksums/
+.DS_Store
 
 ## LATEX EXCLUSIONS
 ## Core latex/pdflatex auxiliary files:
