@@ -297,32 +297,32 @@ clipscore_blvsighted_corr = df_clipscore_human_corr %>%
 clipscore_blvsighted_corr %>% 
   ggplot(., aes(x=mean_response, y=clipscore, color=participant_group)) +
   # ggplot(., aes(x=mean_response, y=clipscore, color=question_type)) +
-    facet_wrap(~question_type, nrow=2) +
+    facet_wrap(~question_type, nrow=1) +
     # facet_wrap(~participant_group, nrow=1) +
     geom_jitter(alpha=0.1) +
     geom_line(stat="smooth",method = "lm",
               size = 1,
               alpha = 0.8) +
-    stat_cor(method = "pearson", label.x.npc = "middle", label.y.npc = 0) +
+    # stat_cor(method = "pearson", label.x.npc = "middle", label.y.npc = 0) +
     scale_color_manual(values=c("#E69F00", "#009E73", "#56B4E9")) +
     theme(strip.background =element_rect(color="white", fill="white"),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          panel.spacing = unit(1.5, "lines"),
+          panel.spacing = unit(1.1, "lines"),
           axis.title = element_text(size=15),
           axis.text = element_text(size=13),
           strip.text.x = element_text(size = 15),
           legend.title = element_text(size=13),
           legend.text = element_text(size=11)) +
-    coord_cartesian(ylim=c(0,1), xlim=c(1,5)) +
+    coord_cartesian(ylim=c(0.2,1), xlim=c(1,5)) +
     # coord_cartesian(xlim=c(1,5)) +
     theme(legend.position = "top") +
-    xlab("Mean participant rating") +
-    ylab("Clipscore") +
+    xlab("Participant rating") +
+    ylab("CLIPScore") +
     labs(color='Participant group')  +
     scale_y_continuous(breaks = c(0, 0.5, 1))
 
-# ggsave(here("analyses", "figures", "raw", "human_clipscore_corr.png"), height=5.5, width=6)
+ggsave(here("analyses", "figures", "raw", "human_clipscore_corr_long.png"), width=10.5, height=3)
 
 ```
 
@@ -400,18 +400,18 @@ spurtsmima_blvsighted_corr = df_spurtsmima_human_corr %>%
 spurtsmima_blvsighted_corr %>% 
   ggplot(., aes(x=mean_response, y=SPURTS_score, color=participant_group)) +
   # ggplot(., aes(x=mean_response, y=clipscore, color=question_type)) +
-    facet_wrap(~question_type, nrow=2) +
+    facet_wrap(~question_type, nrow=1) +
     # facet_wrap(~participant_group, nrow=1) +
     geom_jitter(alpha=0.1) +
     geom_line(stat="smooth",method = "lm",
               size = 1,
               alpha = 0.8) +
-    stat_cor(method = "pearson", label.x.npc = "middle", label.y.npc = 0.2) +
+    # stat_cor(method = "pearson", label.x.npc = "middle", label.y.npc = 0.2) +
     scale_color_manual(values=c("#E69F00", "#009E73", "#56B4E9")) +
     theme(strip.background =element_rect(color="white", fill="white"),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          panel.spacing = unit(1.5, "lines"),
+          panel.spacing = unit(1.1, "lines"),
           axis.title = element_text(size=15),
           axis.text = element_text(size=13),
           strip.text.x = element_text(size = 15),
@@ -420,12 +420,12 @@ spurtsmima_blvsighted_corr %>%
     coord_cartesian(ylim=c(0,.6), xlim=c(1,5)) +
     # coord_cartesian(xlim=c(1,5)) +
     theme(legend.position = "top") +
-    xlab("Mean participant rating") +
+    xlab("Participant rating") +
     ylab("SPURTS") +
     labs(color='Participant group')  +
     scale_y_continuous(breaks = c(0, 0.5, 1))
 
-# ggsave(here("analyses", "figures", "raw", "human_spurts_corr.png"), width = 6, height = 5.5)
+ggsave(here("analyses", "figures", "raw", "human_spurts_corr_long.png"), width=10.5, height=3)
 
 ###
 # MIMA

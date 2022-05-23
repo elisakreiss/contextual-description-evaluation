@@ -305,6 +305,20 @@ df_sighted %>%
 # write_csv(df_likertresponses, here("analyses", "pilots", "04_descr_eval_nonsighted", "sighted_data.csv"))
 ```
 
+## Description Lengths
+
+```{r descr lengths, echo=FALSE, warning=FALSE}
+
+df_sighted %>% 
+  distinct(description) %>% 
+  mutate(length_char = str_count(description)) %>%
+  mutate(length_words = str_count(description, "\\w+")) %>%
+  mutate(mean_length_words = mean(length_words)) %>% 
+  view()
+
+```
+
+
 ## Pre- vs. Post-image Change Rate
 
 ```{r change rate, echo=FALSE, fig.height=4, fig.width=5, warning=FALSE}
