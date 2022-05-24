@@ -24,7 +24,7 @@ The analyses of the three studies reported in the paper are available in *analys
 
 The data and code used for getting the referenceless metrics scores for CLIPScore and SPURTS are in *metrics/* (Figure 3 in the paper).
 
-A CLIPScore variant that we're reporting on as a proof of concept for the promise of integrating context is going to be released soon (Table 1 in the paper).
+A CLIPScore variant that we're reporting on as a proof of concept for the promise of integrating context is in *analyses/contextclip/* (Table 1 in the paper).
 
 The investigation on the type of textual purpose that CLIPScore seems to track is in *metrics/* using the data in *metrics/clipscore/concadia_purpose_data*.
 
