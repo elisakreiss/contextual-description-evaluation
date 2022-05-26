@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Elisa Kreiss (Stanford University), Cynthia Bennett (Carnegie Mellon University), Shayan Hooshmand (Columbia University), Eric Zelikman (Stanford University), Meredith Ringel Morris (Google Research), Christopher Potts (Stanford University) " />
+  <title>Context Matters for Image Descriptions for Accessibility: Challenges for Referenceless Evaluation Metrics</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 50em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+    }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title" style="font-size: 1.7em;">Context Matters for Image Descriptions for Accessibility:<br />
+Challenges for Referenceless Evaluation Metrics</h1>
+<p class="author"><span><strong>Elisa Kreiss</strong></span><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a><br />
+Stanford University<br />
+<span><strong>Cynthia Bennett</strong></span><br />
+Carnegie Mellon University<br />
+<span><strong>Shayan Hooshmand</strong></span><br />
+Columbia University<br />
+<span><strong>Eric Zelikman</strong></span><br />
+Stanford University<br />
+<span><strong>Meredith Ringel Morris</strong></span><br />
+Google Research<br />
+<span><strong>Christopher Potts</strong></span><br />
+Stanford University<br /></p>
+</header>
+
+<div style="margin: 0 auto; max-width: 36em; padding-left: 50px; padding-right: 50px; text-align: center;">
+  <h1 id="abstract">Abstract</h1>
+  <p>Few images on the Web receive alt-text descriptions that would make them accessible to blind and low vision (BLV) users. Image-based NLG systems have progressed to the point where they can begin to address this persistent societal problem, but these systems will not be fully successful unless we evaluate them on metrics that guide their development correctly. Here, we argue against current <em>referenceless</em> metrics -- those that don't rely on human-generated ground-truth descriptions -- on the grounds that they do not align with the needs of BLV users. The fundamental shortcoming of these metrics is that they cannot take context into account, whereas contextual information is highly valued by BLV users. To substantiate these claims, we present a study with BLV participants who rated descriptions along a variety of dimensions. An in-depth analysis reveals that the lack of context-awareness makes current referenceless metrics inadequate for advancing image accessibility, requiring a rethinking of referenceless evaluation metrics for image-based NLG systems.</p>  
+</div>
+
+<h1 id="introduction">1. Introduction</h1>
+<p>In the pursuit of ever more powerful image description systems, we need evaluation metrics that provide a clear window into model capabilities. At present, we are seeing a rise in <em>referenceless</em> (or reference-free) metrics <span class="citation" data-cites="hessel2021clipscore lee2021qace lee2021umic feinglass2021smurf">(Hessel et al. 2021; Lee, Scialom, et al. 2021; Lee, Yoon, et al. 2021; Feinglass and Yang 2021)</span>, building on prior work in domains such as machine translation <span class="citation" data-cites="lo2019yisi zhao2020limitations">(Lo 2019; Zhao et al. 2020)</span> and summarization <span class="citation" data-cites="louis2013automatically peyrard2018objective">(Louis and Nenkova 2013; Peyrard and Gurevych 2018)</span>. These metrics seek to estimate the quality of a text corresponding to an image without requiring ground truth labels, crowd worker judgments, or reference descriptions. In this work, we investigate the current value of such metrics for assessing the usefulness of image descriptions for blind and low vision (BLV) users.</p>
+<p>Images have become central in all areas of digital communication, from scientific publishing to social media memes <span class="citation" data-cites="hackett2003accessibility bigham2006webinsight buzzi2011web morris2016most voykinska2016how gleason2019it">(Hackett, Parmanto, and Zeng 2003; Bigham et al. 2006; Buzzi, Buzzi, and Leporini 2011; Morris et al. 2016; Voykinska et al. 2016; Gleason et al. 2019)</span>. While images can be made nonvisually accessible with image descriptions, these are rare, with coverage as low as 0.1% on English-language Twitter <span class="citation" data-cites="gleason2020twitter">(Gleason et al. 2020)</span>. In light of this challenge, there are numerous efforts underway to investigate what makes descriptions useful and develop models to artificially generate such descriptions at scale.</p>
+<p>Referenceless metrics offer the promise of quick and efficient evaluation of models that generate image descriptions, and they are even suggested to be more reliable than existing reference-based metrics <span class="citation" data-cites="kasai2021transparent kasai2021bidimensional">(Kasai, Sakaguchi, Dunagan, et al. 2021; Kasai, Sakaguchi, Bras, et al. 2021)</span>. The question then arises of whether referenceless metrics can provide suitable guidance for meeting accessibility needs.</p>
+<p>There are two main categories of referenceless metrics. <em>Imaged-based</em> metrics assess a description’s quality relative to its associated image. The most prominent example is CLIPScore <span class="citation" data-cites="hessel2021clipscore">(Hessel et al. 2021)</span>, a metric based on CLIP – a multi-modal model trained on a large image–text dataset <span class="citation" data-cites="radford2021learning">(Radford et al. 2021)</span>. CLIPScore provides a compatibility score for image–text pairs, leveraging the fact that CLIP was trained contrastively with positive and negative examples <span class="citation" data-cites="hessel2021clipscore lee2021umic">(Hessel et al. 2021; Lee, Yoon, et al. 2021)</span>. In contrast, <em>text-based</em> metrics rely entirely on intrinsic properties of the description text. For instance, SPURTS rates a description based on its linguistic style by leveraging the information flow in DistilRoBERTa, a large language model <span class="citation" data-cites="feinglass2021smurf">(Feinglass and Yang 2021)</span>.</p>
+<p>Do referenceless metrics, of either type, align with what BLV users value in image descriptions for accessibility? Studies with BLV users highlight that the <em>context</em> in which an image appears is important. For example, while the clothes a person is wearing are highly relevant when browsing through shopping websites, the identity of the person becomes important when reading the news <span class="citation" data-cites="stangl2021going muehlbradt2022what stangl2020person">(Stangl et al. 2021; Muehlbradt and Kane 2022; Stangl, Morris, and Gurari 2020)</span>. Not only the domain but even the immediate context matters for selecting what is relevant. Consider the image in Figure <a href="#fig:contextual-relevance" data-reference-type="ref" data-reference="fig:contextual-relevance">1</a>, showing a park with a gazebo in the center and a sculpture on a pedestal in the foreground. This image could appear for instance in the Wikipedia article on sculptures or gazebos. However, an image description written for the image’s occurrence in the article of gazebos (“A freestanding, open, hexagonal gazebo with a dome-like roof in an idyllic park area.”) becomes unhelpful for the occurrence of the image in the article on sculptures. Thus, context could play a central role in the assessment of description quality.</p>
+<figure>
+  <img src="figures/contextual-relevance.png" id="fig:contextual-relevance" style="width:40%; display: block; margin: 0 auto;" alt="An image of a park with the overlayed image description 'A freestanding, open, hexagonal gazebo with a dome-like roof in an idyllic park area.' Together with the description, the picture is embedded in the Wikipedia article for Gazebos where it's marked as a good description, and in the Wikipedia article for Sculptures where it's marked as a bad description." />
+  <caption aria-hidden="true">Figure 1: Whether an image description makes an image accessible depends on the context where the image appears. Referenceless metrics like CLIPScore can’t capture such context-sensitivity. We provide experimental evidence with blind and low vision (BLV) participants that this makes current referenceless metrics insufficient for evaluating image description quality.</caption>
+</figure>
+<p>In this work, we report on studies with sighted and BLV participants that seek to provide rich, multidimensional information about what people value in accessibility image descriptions. Our central manipulation involves systematically varying the Wikipedia articles the images are presented as appearing in, and studying the effects this has on participants’ judgments. For both sighted and BLV participants, we observe strong and consistent effects of context. However, by their very design, current referenceless metrics can’t capture these effects, since they treat description evaluation as a context-less problem. This shortcoming goes undetected on most existing datasets and previously conducted human evaluations, which presume that image descriptions are context-independent.</p>
+<p>Image accessibility is a prominent and socially important goal that image-based NLG systems are striving to reach <span class="citation" data-cites="gurari2020captioning">(Gurari et al. 2020)</span>. Our results suggest that current referenceless metrics may not be reliable guides in these efforts.</p>
+<h1 id="background">2. Background</h1>
+<h2 id="image-accessibility">2.1 Image Accessibility</h2>
+<p>Screen readers provide auditory and braille access to Web content. To make images accessible in this way, screen readers use image descriptions embedded in HTML <code>alt</code> tags. However, such descriptions are rare. While frequently visited websites are estimated to have about 72% coverage <span class="citation" data-cites="guinness2018caption">(Guinness, Cutrell, and Morris 2018)</span>, this drops to less than 6% on English-language Wikipedia <span class="citation" data-cites="kreiss2022concadia">(Kreiss, Goodman, and Potts 2022)</span> and to 0.1% on English-language Twitter <span class="citation" data-cites="gleason2019it">(Gleason et al. 2019)</span>. This has severe implications especially for BLV users who have to rely on such descriptions to engage socially <span class="citation" data-cites="morris2016most macleod2017understanding buzzi2011web voykinska2016how">(Morris et al. 2016; MacLeod et al. 2017; Buzzi, Buzzi, and Leporini 2011; Voykinska et al. 2016)</span> and stay informed <span class="citation" data-cites="gleason2019it morris2016most">(Gleason et al. 2019; Morris et al. 2016)</span>.</p>
+<p>Moreover, these coverage estimates are based on any description being available, without regard for whether the descriptions are useful. Precisely what constitutes a useful description is still an underexplored question. A central finding from work with BLV users is that one-size-fits-all image descriptions don’t address image accessibility needs <span class="citation" data-cites="stangl2021going muehlbradt2022what stangl2020person">(Stangl et al. 2021; Muehlbradt and Kane 2022; Stangl, Morris, and Gurari 2020)</span>. <span class="citation" data-cites="stangl2021going">Stangl et al. (2021)</span> specifically tested the importance of the <em>scenario</em> – the source of the image and the informational goal of the user – by placing each image within different source domains (e.g., news or shopping website) which were associated with specific goals (e.g., learning or browsing for a gift). They find that BLV users have certain description preferences that are stable across scenarios (e.g., people’s identity and facial expressions, or the type of location depicted), whereas others are scenario-dependent (e.g., hair color). We extend this previous work by keeping the scenario stable but varying the immediate context the image is embedded in.</p>
+<p>Current referenceless metrics take the one-size-fits-all approach. We explicitly test whether this is sufficient to capture the ratings provided by BLV users when they have access to the broader context.</p>
+<h2 id="image-based-text-evaluation-metrics">2.2 Image-based Text Evaluation Metrics</h2>
+<p>There are two evaluation strategies for automatically assessing the quality of a model’s generated text from images: <em>reference-based</em> and <em>referenceless</em> (or reference-free) metrics.</p>
+<p>Reference-based metrics rely on ground-truth texts associated with each image that were created by human annotators. The candidate text generated by the model is then compared with those ground-truth references, returning a similarity score. A wide variety of scoring techniques have been explored. Examples are BLEU <span class="citation" data-cites="papineni2002bleu">(Papineni et al. 2002)</span>, CIDEr <span class="citation" data-cites="vedantam2015cider">(Vedantam, Lawrence Zitnick, and Parikh 2015)</span>, SPICE <span class="citation" data-cites="anderson2016spice">(Anderson et al. 2016)</span>, ROUGE <span class="citation" data-cites="lin2004rouge">(Lin 2004)</span>, and BERTscore <span class="citation" data-cites="zhang2019bertscore">(Zhang et al. 2019)</span>. The more references are provided, the more reliable the scores, which requires datasets with multiple high-quality annotations for each image. Such datasets are expensive and difficult to obtain.</p>
+<p>As discussed above, referenceless metrics dispense with the need for ground-truth reference texts. Instead, text quality is assessed based either on how the text relates to the image content <span class="citation" data-cites="hessel2021clipscore lee2021umic lee2021qace">(Hessel et al. 2021; Lee, Yoon, et al. 2021; Lee, Scialom, et al. 2021)</span> or on text quality alone <span class="citation" data-cites="feinglass2021smurf">(Feinglass and Yang 2021)</span>. As a result, these metrics can in principle be used anywhere without the need for an expensive annotation effort. How the score is computed varies between metrics. CLIPScore <span class="citation" data-cites="hessel2021clipscore">(Hessel et al. 2021)</span> and UMIC <span class="citation" data-cites="lee2021umic">(Lee, Yoon, et al. 2021)</span> pose a classification problem where models are trained contrastively on compatible and incompatible image–text pairs. A higher score for a given image and text as input then corresponds to a high compatibility between them. QACE provides a high score if descriptions and images provide similar answers to the same questions <span class="citation" data-cites="lee2021qace">(Lee, Scialom, et al. 2021)</span>. SPURTS is a referenceless metric which judges text quality solely based on text-internal properties that can be conceptualized as maximizing unexpected content <span class="citation" data-cites="feinglass2021smurf">(Feinglass and Yang 2021)</span>. SPURTS was originally proposed as part of the metric SMURF which additionally contains a reference-based component, specifically designed to capture the semantics of the description. However, <span class="citation" data-cites="feinglass2021smurf">Feinglass and Yang (2021)</span> find that SPURTS alone already seems to approximate human judgments well, which makes it a relevant referenceless metric to consider. While varying in their approach, all current referenceless metrics share that they treat image-based text generation as a context-independent problem.</p>
+<p>Reference-based metrics have the <em>potential</em> to reflect context-dependence, assuming the reference texts are created in ways that engage with the context the image appears in. Referenceless methods are much more limited in this regard: if a single image–description pair should receive different scores in different contexts, but the metric operates only on image–description pairs, then the metric will be intrinsically unable to provide the desired scores.</p>
+<h1 id="experiment-the-effect-of-context-on-human-image-description-evaluation">3. Experiment: The Effect of Context on Human Image Description Evaluation</h1>
+<p>Efforts to obtain and evaluate image descriptions through crowdsourcing are mainly conducted out-of-context: images that might have originally been part of a tweet or news article are presented in isolation to obtain a description or evaluation thereof. Following recent insights on the importance of the domains an image appeared in <span class="citation" data-cites="stangl2021going muehlbradt2022what stangl2020person">(Stangl et al. 2021; Muehlbradt and Kane 2022; Stangl, Morris, and Gurari 2020)</span>, we seek to understand the role of context in shaping how people evaluate descriptions. Figure <a href="#fig:expdesign" data-reference-type="ref" data-reference="fig:expdesign">2</a> provides an overview of the two main phases. Firstly, we obtained contextual descriptions by explicitly varying the context each image could occur in (Figure <a href="#fig:expdesign" data-reference-type="ref" data-reference="fig:expdesign">2</a>A). We then explored how context affects sighted and BLV users’ assessments of descriptions along a number of dimensions (Figure <a href="#fig:expdesign" data-reference-type="ref" data-reference="fig:expdesign">2</a>B). Finally, in Section <a href="#sec:metric-assess" data-reference-type="ref" data-reference="sec:metric-assess">4</a>, we compare these contextual evaluations with the results from the referenceless metrics CLIPScore <span class="citation" data-cites="hessel2021clipscore">(Hessel et al. 2021)</span> and SPURTS <span class="citation" data-cites="feinglass2021smurf">(Feinglass and Yang 2021)</span>.</p>
+<figure>
+  <img src="figures/expdesign.png" id="fig:expdesign" style="width:100.0%; display: block; margin: 0 auto;" alt="Overview of the data and experimental design. It consists of two blocks corresponding with the two main experiments: contextualized description writing, and contextualized description evaluation. In the contextualized description writing experiment, the same image of a church is placed in three different Wikipedia articles: Roof, Building Material, and Christian Cross. The article on Building Material with the image is then shown to a sighted participant who is asked to write a description and to then review it for quality after the image has been removed from their view. The contextualized description evaluation experiment consists of two subparts, each with two phases: one with sighted participants, and one with BLV participants. Sighted participants first evaluated the description only having access to the context and not the image. Afterwards, they evaluated again while being able to see the image. They could also view their previous selection for each question. BLV participants completed a similar first phase, evaluating the description while having access to the context. Afterwards, they were asked 5 additional open-ended questions." /><caption aria-hidden="true">Figure 2: Experimental design overview consisting of two main phases: (A) eliciting descriptions written for images occurring within varying contexts, (B) obtaining detailed evaluations of those descriptions from sighted and BLV participants. These evaluations give insights into the role that context needs to play for providing useful descriptions, and function as the gold standard that the results from referenceless metrics are then compared to.</caption>
+</figure>
+<h2 id="data">3.1 Data</h2>
+<p>To investigate the effect of context on image descriptions, we designed a dataset where each image was paired with three distinct contexts, here Wikipedia articles. For instance, an image of a church was paired with the first paragraphs of the Wikipedia articles on <em>Building material</em>, <em>Roof</em>, and <em>Christian cross</em>. Similarly, each article appeared with three distinct images. The images were made publicly available through Wikimedia Commons. Overall, we obtained 54 unique image–context pairs, consisting of 18 unique images and 17 unique articles. The dataset, experiments used for data collection, and analyses are made available.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<h2 id="contextual-description-writing">3.2 Contextual Description Writing</h2>
+<p>To obtain image descriptions, we recruited 74 participants on Amazon’s Mechanical Turk for the task of providing image descriptions that could make the images accessible to users who can’t see them.</p>
+<h4 id="task">Task</h4>
+<p>Each participant went through a brief introduction explaining the challenge and purpose of image descriptions and was then shown six distinct articles, each of them containing a different image they were asked to describe. To enable participants to judge their descriptions, the description then replaced the image and participants could choose to edit their response before continuing. The task did not contain any guidance on which information should or should not be included in the description. Consequently, any context-dependence is simply induced by presenting the images within contexts (Wikipedia articles) instead of in isolation.</p>
+<h4 id="exclusions">Exclusions</h4>
+<p>We excluded six participants who indicated confusion about the task in the post-questionnaire and one participant for whom the experiment didn’t display properly. Overall, each image–article pair received on average five descriptions.</p>
+<h4 id="results">Results</h4>
+<p>After exclusions, we obtained 272 descriptions that varied in length between 13 and 541 characters, with an average of 24.9 words. With the following human subject evaluation experiment, we evaluate to what extent the description content was affected by the image context.</p>
+<h2 id="contextual-description-evaluation">3.3 Contextual Description Evaluation</h2>
+<p>After obtaining contextual image descriptions, we designed a description evaluation study which we conducted with BLV as well as sighted participants. Both groups can provide important insights. We consider the ratings of BLV participants as the primary window into accessibility needs. However, sighted participant judgments can complement these results, in particular by helping us determine whether a description is true for an image. Furthermore, the sighted participants’ intuitions about what makes a good description are potentially informative since sighted users are usually the ones providing image descriptions.</p>
+<h4 id="task-1">Task</h4>
+<p>Sighted as well as BLV participants rated each image description as it occurred within the respective Wikipedia article. To get a better understanding of the kinds of content that might affect description quality, each description was evaluated according to five dimensions:</p>
+<ol>
+<li><p><em>Overall</em>: How good the description seemed overall.</p></li>
+<li><p><em>Imaginability</em>: How well the description helped the participant imagine the image.</p></li>
+<li><p><em>Relevance</em>: How well the description captured relevant information.</p></li>
+<li><p><em>Irrelevance</em>: How much extra (irrelevant) information it added.</p></li>
+<li><p><em>Fit</em>: How well the image seemed to fit within the article.</p></li>
+</ol>
+<p>The questions <em>Imaginability</em> and <em>Relevance</em> are designed to capture two central aspects of description content. While <em>Imaginability</em> has no direct contextual component, <em>Relevance</em> and <em>Irrelevance</em> specifically ask about the contextually determined aspects of the description. These dimensions give us insights into the importance of context in the <em>Overall</em> description quality ratings.</p>
+<p>Responses were provided on 5-point Likert scales. In addition to 17 critical trials each participant completed, we further included two trials with descriptions carefully constructed to exhibit for instance low vs. high context sensitivity. These trials allowed us to ensure that the questions and scales were interpreted as intended by the participants. Overall, each participant completed 19 trials, where each trial consisted of a different article and image. Trial order and question order were randomized between participants to avoid potential ordering biases.</p>
+<h3 id="sec:exp-eval-sighted">3.3.1 Sighted Participants</h3>
+<h4 id="task-2">Task</h4>
+<p>To ensure high data quality, sighted participants were asked a reading comprehension question before starting the experiment which also familiarized them with the overall topic of image accessibility. If they passed, they could choose to enter the main study, otherwise they exited the study and were only compensated for completing the comprehension task.</p>
+<p>In each trial, participants first saw the Wikipedia article, followed by an image description. This <em>no image</em> condition can be conceptualized as providing sighted participants with the same information a BLV user would be able to access. They then responded to the five questions and were asked to indicate if the description contained false statements or discriminatory language. After submitting the response, the image was revealed and participants responded again to four of the five questions. The <em>Imaginability</em> question was omitted since it isn’t clearly interpretable once the image is visible. Their previous rating for each question was made available to them so that they could reason about whether they wanted to keep or change their response.</p>
+<h4 id="participants-and-exclusions">Participants and Exclusions</h4>
+<p>79 participants were recruited over Amazon’s Mechanical Turk, 68 of whom continued past the reading comprehension question. We excluded eight participants since they spent less than 19 minutes on the task, and one participant whose logged data was incomplete. This resulted in 59 submissions for further analysis.</p>
+<h3 id="blv-participants">3.3.2 BLV Participants</h3>
+<p>The 68 most-rated descriptions across the 17 Wikipedia articles and 18 images were then selected to be further evaluated by BLV participants.</p>
+<h4 id="task-3">Task</h4>
+<p>To provide BLV participants with the same information as sighted participants, they similarly started with the reading comprehension question before continuing to the main trials. After reading the Wikipedia article and the image descriptions, participants first responded to the five evaluation dimensions. Afterwards, they provided answers to five open-ended questions about the description content. The main focus of the analysis presented here is on the Likert scale responses, but the open-ended explanations allow more detailed insights into description preferences. Each description was rated by exactly four participants.</p>
+<h4 id="participants">Participants</h4>
+<p>16 participants were recruited via targeted email lists for BLV users, and participants were unknowing about the purpose of the study. Participants self-described their level of vision as totally blind (7), nearly blind (3), light perception only (5), and low vision (1). 15 participants reported relying on screen readers (almost) always when browsing the Web, and one reported using them often.</p>
+<p>We enrolled fewer blind participants than sighted participants, as they are a low-incidence population, requiring targeted and time-consuming recruitment. For example, crowd platforms that enable large sample recruitment are inaccessible to blind crowd workers <span class="citation" data-cites="Vashistha-etal:2018">(Vashistha, Sethi, and Anderson 2018)</span>.</p>
+<h3 id="evaluation-results">3.3.3 Evaluation Results</h3>
+<p>The following analyses are based on the 68 descriptions, comprising 18 images and 17 Wikipedia articles. Each description is evaluated according to multiple dimensions by sighted as well as BLV participants for how well the description serves an accessibility goal.</p>
+<p>Figure <a href="#fig:corr-blv-sighted" data-reference-type="ref" data-reference="fig:corr-blv-sighted">3</a> shows the correlation of BLV and sighted participant ratings across questions. We find that the judgments of the two groups are significantly correlated for all questions. The correlation is encouraging since it shows an alignment between the BLV participants’ reported preferences and the sighted participants’ intuitions. Whether sighted participants could see the image when responding didn’t make a qualitative difference. The results further show that the dataset provides very poor to very good descriptions, covering the whole range of possible responses. This range is important for insights into whether a proposed evaluation metric can detect what makes a description useful.</p>
+<figure>
+<img src="figures/blvsightedcorr.png" id="fig:corr-blv-sighted" style="display: block; margin: 0 auto;"  alt="Correlations between sighted and BLV participant judgments for all five evaluation questions: Overall, Imaginability, Relevance, Irrelevance, and Fit. All correlations are statistically significant. For the Overall, Relevance, and Irrelevance questions, correlations are consistently 2% smaller in the condition where sighted participants can see the image compared to when they can't. Correlations are at about 0.5 for the questions Overall, Imaginability, and Irrelevance, and above 0.6 for the Relevance question. The highest correlation is 0.82 for how well the image fits the article, judged by sighted participants before the image was visible to them. After the image was revealed, correlation drops to 0.67. " /><caption aria-hidden="true">Figure 3: Correlation of BLV and sighted participant ratings across questions. Sighted participants provided ratings twice –- before seeing the image (in green) and after (in blue). Each point denotes the average rating for a description. The Pearson correlations (R) are all statistically significant, as indicated by the asterisks. For all questions, higher ratings are associated with higher quality descriptions.</caption>
+</figure>
+<p>We conducted a mixed effects linear regression analysis of the BLV participant judgments to investigate which responses are significant predictors of the overall ratings. We used normalized and centered fixed effects of the three content questions (<em>Imaginability</em>, <em>Relevance</em> and <em>Irrelevance</em>), and random by-participant and by-description intercepts. If context doesn’t affect the quality of a description, <em>Imaginability</em> should be a sufficient predictor of the overall ratings. However, in addition to an effect of <em>Imaginability</em> (<span class="math inline"><em>β</em> = .42</span>, <span class="math inline">SE = .06</span>, <span class="math inline"><em>p</em> &lt; .001</span>), we find a significant effect of <em>Relevance</em> as well (<span class="math inline"><em>β</em> = .44</span>, <span class="math inline">SE = .05</span>, <span class="math inline"><em>p</em> &lt; .001</span>), suggesting that context plays an essential role in guiding what makes a description useful. This finding replicates with the sighted participant judgments.</p>
+<figure>
+  <img src="figures/human_length_corr.png" id="fig:length-corr" style="width:60%; display: block; margin: 0 auto;" alt="Four subplots corresponding to the four main content questions Overall, Imaginability, Relevance, and Irrelevance. Across plots, description length is on the x axis and the averaged human rating on the y axis. BLV ratings are positively correlated with description length for the questions Overall, Imaginability, and Relevance. Sighted participant ratings don't show any significant correlations for these questions. For Irrelevance, BLV as well as sighted participant ratings show a negative correlation which is larger for sighted participants (-0.47 vs. -0.28) but statistically significant for both." /><caption aria-hidden="true">Figure 4: Correlation of BLV and sighted participant judgments with description length (in characters). Human judgments are rescaled to the zero to one range.</caption>
+</figure>
+<p>A case where BLV and sighted participant ratings diverge is in the effect of description length (Figure <a href="#fig:length-corr" data-reference-type="ref" data-reference="fig:length-corr">4</a>). While longer descriptions tend to be judged overall more highly by BLV participants, there is no such correlation for sighted participants. This finding contrasts with popular image description guidelines, which generally advocate for shorter descriptions.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> The lack of correlation between sighted participant ratings and description length might be linked to this potential misconception.</p>
+<h1 id="sec:metric-assess">4. Referenceless Metrics for Image Accessibility</h1>
+<p>Referenceless metrics have been shown to correlate well with how sighted participants judge description quality when descriptions are written and presented out-of-context <span class="citation" data-cites="hessel2021clipscore feinglass2021smurf lee2021umic kasai2021transparent">(Hessel et al. 2021; Feinglass and Yang 2021; Lee, Yoon, et al. 2021; Kasai, Sakaguchi, Dunagan, et al. 2021)</span>. While image accessibility is one of the main goals referenceless metrics are intended to facilitate <span class="citation" data-cites="kasai2021bidimensional hessel2021clipscore kasai2021transparent">(Kasai, Sakaguchi, Bras, et al. 2021; Hessel et al. 2021; Kasai, Sakaguchi, Dunagan, et al. 2021)</span>, it remains unclear whether they can approximate the usefulness of a description for BLV users. Inspired by recent insights into what makes a description useful, we argue that the inherently decontextualized nature of current referenceless metrics makes them inadequate as a measure of image accessibility. We focus on two referenceless metrics to support these claims: CLIPScore <span class="citation" data-cites="hessel2021clipscore">(Hessel et al. 2021)</span> and SPURTS <span class="citation" data-cites="feinglass2021smurf">(Feinglass and Yang 2021)</span>.</p>
+<p>CLIPScore is currently the most prominent referenceless metric, and it seems likely to inspire additional similar metrics, given the rising number of successful multimodal models trained under contrastive learning objectives. While CLIPScore has been tested on a variety of datasets and compared to crowd worker judgments, it has so far been disconnected from insights into what makes descriptions useful for accessibility.</p>
+<p>CLIPScore uses the similarity of CLIP’s image and description embeddings as the predictor for description quality, as formulated in <a href="#eq:clipscore" data-reference-type="ref" data-reference="eq:clipscore">the following equation</a>. Denoting <span class="math inline">\(\frac{x}{|x|}\)</span> (i.e., x divided by its norm) as <span class="math inline">\(\overline{x}\)</span> (i.e., x-bar), we can express CLIPScore as <span class="math display">$$\label{eq:clipscore}
+   \text{max}\left({\overline{\textnormal{image}}} \cdot {\overline{\textnormal{description}}}, 0\right),$$</span>
+   i.e., the score corresponds to the dot product of the image-bar and description-bar representations if above 0, otherwise 0.</p>
+<p>SPURTS is different from CLIPScore since it only considers the description itself, without taking image information into account. The main goal of SPURTS is to detect fluency and style, and it can be written as <span class="math display">$$\label{eq:spurts}
+\textnormal{median}_{\textnormal{layer}} \textnormal{max}_{\textnormal{head}} \  I_{\textnormal{flow}}(y_{w/o}, \theta),$$</span> where <span class="math inline">\(I_{\textnormal{flow}}\)</span>, which <span class="citation" data-cites="feinglass2021smurf">Feinglass and Yang (2021)</span> refer to as information flow, is normalized mutual information as defined in <span class="citation" data-cites="witten2005practical">Witten et al. (2005)</span>. For an input text without stop words, <span class="math inline"><em>y</em><sub><em>w</em>/<em>o</em></sub></span>, and a transformer with parameters <span class="math inline"><em>θ</em></span>, SPURTS computes the information flow for each transformer head at each layer, and then returns the layer-wise median of the head-wise maxima.</p>
+<p>We turn now to assessing the extent to which CLIPScore and SPURTS approximate the ratings of the BLV and sighted users from our studies. Our central conclusion is that the context-independence of these metrics makes them inadequate for approximating description quality.</p>
+<h2 id="compatibility">4.1 Compatibility</h2>
+<p>We first inspect the extent to which current referenceless metrics can capture whether a description is true for an image. SPURTS provides scores independent of the image and therefore inherently can’t capture any notion of truthfulness. In contrast, CLIPScore is trained to distinguish between fitting and non-fitting image–text pairs, returning a compatibility score. We test whether this generalizes to our experimental data by providing CLIPScore with the true descriptions written for each image and a shuffled variant where images and descriptions were randomly paired. As Figure <a href="#fig:clipscore-truthfulness" data-reference-type="ref" data-reference="fig:clipscore-truthfulness">4</a>A demonstrates, CLIPScore rates the ordered pairs significantly higher compared to the shuffled counterparts (<span class="math inline"><em>β</em> = 2.02</span>, <span class="math inline">SE = .14</span>, <span class="math inline"><em>p</em> &lt; .001</span>),<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> suggesting that it captures image–text compatibility.</p>
+<figure>
+  <img src="figures/compat_length.png" id="fig:clipscore-truthfulness" style="width:70.0%; display: block; margin: 0 auto;" alt="Subfigure A: CLIPScore assigns consistently higher ratings to descriptions compatible with their images vs. their shuffled counterparts. Error bars are clearly non-overlapping. Subfigure B: SPURTS scores are significantly correlated with longer descriptions (R=0.45). CLIPScore is not (R=0.01)." /><caption aria-hidden="true">Figure 5: Analyses of the capabilities of referenceless metrics. (A) CLIPScore can pick out whether a written description is compatible with the image. When shuffling image–description pairs, the average CLIPScore drops from 0.73 to 0.43. SPURTS can’t make this distinction due to its image-independence. (B) Longer descriptions are associated with higher scores of SPURTS but not CLIPScore.</caption>
+</figure>
+<h2 id="description-length-correlation">4.2 Description Length Correlation</h2>
+<p>Since the length of the description can already account for some of the variance of the BLV ratings, we further investigate whether description length is a general predictor for CLIPScore and SPURTS (see Figure <a href="#fig:clipscore-truthfulness" data-reference-type="ref" data-reference="fig:clipscore-truthfulness">4</a>B). For CLIPScore, description length doesn’t correlate with predicted quality of the description, which is likely a consequence of the contrastive learning objective, which only optimizes for compatibility but not quality. SPURTS scores, in contrast, significantly correlate with description length, which is aligned with the BLV ratings.</p>
+<figure>
+  <img src="figures/human_clipscorespurts_corr.png" id="fig:clipscore-blvsighted" style="width:99.0%; display: block; margin: 0 auto;" alt="Plot with four subplots titled with the main contentquestions: Overall, Imaginability, Relevance, Irrelevance. Two rows divide the correlations between metrics: clipscore correlations are in the first row and SPURTS correlations are in the second. Each subplot shows that there is clearly no correlation between Clipscore and human ratings (BLV and sighted) across questions. CLIPScore correlations range from 0.14 to -0.2, and are never statistically significant. For SPURTS, there are no correlations with sighted ratings but significant positive correlations with the BLV ratings (up to a correlation of 0.41 with the overall ratings). Using SPURTS, the correlations for Irrelevance are all negative." /><caption aria-hidden="true">Figure 6: Correlations of CLIPScore (top row) and SPURTS (bottom row) with human ratings provided by sighted and BLV participants. The Pearson correlations are computed over the human evaluators’ average per-description rating. Sighted participants responded to the questions twice; once without (in green) and after seeing the image (in blue). There are no significant correlations between CLIPScore and human ratings. SPURTS correlates significantly with all responses provided by BLV participants but negatively with <em>Irrelevance</em> and not at all with sighted participant ratings, indicating a fundamental mismatch.</caption>
+</figure>
+<h2 id="context-sensitivity">4.3 Context Sensitivity</h2>
+<p>Crucially, the descriptions were written and evaluated within contexts, i.e., their respective Wikipedia article, and previous work suggests that the availability of context should affect what constitutes a good and useful description. Since current referenceless metrics can’t integrate context, we expect that they shouldn’t be able to capture the variation in the human description evaluations, and this is indeed what we find.</p>
+<p>To investigate this hypothesis, we correlated sighted and BLV description evaluations with the CLIPScore and SPURTS ratings. As shown in Figure <a href="#fig:clipscore-blvsighted" data-reference-type="ref" data-reference="fig:clipscore-blvsighted">5</a>, CLIPScore fails to capture any variation observed in the human judgments across questions. This suggests that, while CLIPScore can add a perspective on the compatibility of a text for an image, it can’t get beyond that as an indication of how useful a description is if it’s true for the image.</p>
+<p>Like CLIPScore, SPURTS scores don’t correlate with the sighted participant judgments (see Figure <a href="#fig:clipscore-blvsighted" data-reference-type="ref" data-reference="fig:clipscore-blvsighted">5</a>, bottom). However, specifically with respect to the overall rating, SPURTS scores show a significant correlation with the BLV participant ratings. While this seems encouraging, further analysis revealed that this correlation is primarily driven by the fact that both BLV and SPURTS ratings correlate with description length. The explained variance of the BLV ratings from description length alone is <span class="math inline">0.152</span> and SPURTS score alone explains <span class="math inline">0.08</span> of the variance. In conjunction, however, they only explain <span class="math inline">0.166</span> of the variance, which means that most of the predictability of SPURTS is due to the length correlation. This is further supported by a mixed effects linear regression analysis in which we fail to find a significant effect of SPURTS (<span class="math inline"><em>β</em> = .80</span>, <span class="math inline">SE = .44</span>, <span class="math inline"><em>p</em> &gt; .05</span>) once we include length as a predictor (<span class="math inline"><em>β</em> = .64</span>, <span class="math inline">SE = .15</span>, <span class="math inline"><em>p</em> &lt; .001</span>).<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
+<p>A further indication that SPURTS isn’t capturing essential variance in BLV judgments is apparent from the negative correlation in the <em>Irrelevance</em> question (<span class="math inline"><em>R</em> =  − 0.25</span>). This suggests that SPURTS scores tend to be higher for descriptions that are judged to contain too much irrelevant information and low when participants assess the level of information to be appropriate. In the BLV responses, <em>Irrelevance</em> is positively correlated with the <em>Overall</em> ratings (<span class="math inline"><em>R</em> = 0.33</span>), posing a clear qualitative mismatch to SPURTS. Since what is considered extra information is dependent on the context, this is a concrete case where the metric’s lack of context integration results in undesired behavior.</p>
+<p>Finally, SPURTS’ complete lack of correlation with sighted participant judgments further suggests that SPURTS is insufficient for picking up the semantic components of the descriptions. This aligns with the original conception of the metric, where a reference-based metric (SPARCS) is used to estimate semantic quality.</p>
+<p>Overall, our results highlight that SPURTS captures the BLV participants’ preferences for longer descriptions but falls short in capturing additional semantic preferences, and is inherently inadequate for judging the truthfulness of a description more generally. CLIPScore can’t capture any of the variation in BLV or sighted participant ratings, uncovering clear limitations.</p>
+<h2 id="implications-for-other-referenceless-metrics">4.4 Implications for Other Referenceless Metrics</h2>
+<p>In the previous experiments, we established that the referenceless metrics CLIPScore and SPURTS can’t get traction on what makes a good description when the images and descriptions are contextualized. Other referenceless metrics such as UMIC <span class="citation" data-cites="lee2021umic">(Lee, Yoon, et al. 2021)</span> and QACE <span class="citation" data-cites="lee2021qace">(Lee, Scialom, et al. 2021)</span> face the same fundamental issue as CLIPScore and SPURTS due to their contextless nature. Like CLIPScore, UMIC is based on an image–text model (UNITER; <span class="citation" data-cites="chen2020uniter">Chen et al. (2020)</span>) trained under a contrastive learning objective. Similarly, it produces an image–text compatibility score solely by receiving a decontextualized image and text as input. QACE uses the candidate description to derive potential questions that should be answerable based on the image. The evaluation is therefore whether the description mentions aspects that are true of the image and not about which aspects of the image are relevant to describe. This again only provides insights into image–text compatibility but not contextual relevance.<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
+<p>In summary, the current context-independence of all existing referenceless metrics is a major limitation for their usefulness. This is a challenge that needs to be addressed to make these metrics a useful tool for advancing image-based NLG systems.</p>
+<h1 id="discussion-future-opportunities-and-limitations">5. Discussion: Future Opportunities and Limitations</h1>
+<p>So far, we have argued that CLIPScore and other referenceless metrics aren’t a useful approximation for BLV (and sighted) user judgments of high-quality descriptions, primarily due to their contextless nature. Using the example of CLIPScore, we will now explore where future work on referenceless metrics in image-based NLG can progress and also discuss some underlying limitations.</p>
+<h2 id="the-potential-for-integrating-context-into-clipscore">5.1 The Potential for Integrating Context into CLIPScore</h2>
+<p>Can referenceless metrics like CLIPScore be made context sensitive? To begin exploring this question, as a proof of concept, we amend <a href="#eq:clipscore" data-reference-type="ref" data-reference="eq:clipscore">the CLIPScore equation</a> as follows: <span class="math display">$$\begin{gathered}
+\label{eq:clipwcontext}
+    \overline{\textnormal{description}} \cdot \textnormal{context} \ + \\   
+    \textnormal{description} \cdot \left(\overline{\textnormal{image}}  - \overline{\textnormal{context}}\right)\end{gathered}$$</span> Here, quality is a function of (a) the description’s similarity to the context (first addend, i.e., the dot product of description-bar and context representations) and (b) whether the description captures the information that the image adds to the context (second addend, i.e., the dot product of the description representation and the difference between image-bar and context-bar representations). These two addends can be seen as capturing aspects of (ir)relevance and imaginability, respectively, though we anticipate many alternative ways to quantify these dimensions.</p>
+<p>Table <a href="#tab:clipscorewcontext" data-reference-type="ref" data-reference="tab:clipscorewcontext">1</a> reports correlations between this augmented version of CLIPScore and our sighted and BLV participant judgments. We find it encouraging that even this simple approach to incorporating context boosts correlations with human ratings for all the questions in our experiment. For the <em>Irrelevance</em> question, it even clearly captures the positive correlation with BLV ratings, which is negative for both CLIPScore and SPURTS, indicating a promising shift. We consider this an encouraging signal that large pretrained models such as CLIP might still constitute a resource for developing future referenceless metrics.</p>
+<div class="table*" style="padding-left: 50px; padding-right: 50px; caption-side: bottom;">
+  <table>
+  <thead>
+  <tr class="header">
+  <th style="text-align: right;"></th>
+  <th style="text-align: left;"></th>
+  <th style="text-align: right;">Overall</th>
+  <th style="text-align: right;">Imaginability</th>
+  <th style="text-align: right;">Relevance</th>
+  <th style="text-align: right;">Irrelevance</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td style="text-align: right;">CLIPScore:</td>
+  <td style="text-align: left;">BLV</td>
+  <td style="text-align: right;">0.075</td>
+  <td style="text-align: right;">0.104</td>
+  <td style="text-align: right;">0.086</td>
+  <td style="text-align: right;">0.090</td>
+  </tr>
+  <tr class="even">
+  <td style="text-align: right;">With Context:</td>
+  <td style="text-align: left;">BLV</td>
+  <td style="text-align: right;">0.201</td>
+  <td style="text-align: right;">0.182</td>
+  <td style="text-align: right;">0.202</td>
+  <td style="text-align: right;">0.142</td>
+  </tr>
+  <tr class="odd">
+  <td style="text-align: right;">CLIPScore:</td>
+  <td style="text-align: left;">sighted, no img</td>
+  <td style="text-align: right;"><span class="math inline">−</span>0.013</td>
+  <td style="text-align: right;">0.064</td>
+  <td style="text-align: right;">0.000</td>
+  <td style="text-align: right;"><span class="math inline">−</span>0.166</td>
+  </tr>
+  <tr class="even">
+  <td style="text-align: right;">With Context:</td>
+  <td style="text-align: left;">sighted, no img</td>
+  <td style="text-align: right;">0.238</td>
+  <td style="text-align: right;">0.315</td>
+  <td style="text-align: right;">0.190</td>
+  <td style="text-align: right;"><span class="math inline">−</span>0.019</td>
+  </tr>
+  <tr class="odd">
+  <td style="text-align: right;">CLIPScore:</td>
+  <td style="text-align: left;">sighted, w img</td>
+  <td style="text-align: right;">0.139</td>
+  <td style="text-align: right;"></td>
+  <td style="text-align: right;">0.106</td>
+  <td style="text-align: right;"><span class="math inline">−</span>0.079</td>
+  </tr>
+  <tr class="even">
+  <td style="text-align: right;">With Context:</td>
+  <td style="text-align: left;">sighted, w img</td>
+  <td style="text-align: right;">0.331</td>
+  <td style="text-align: right;"></td>
+  <td style="text-align: right;">0.240</td>
+  <td style="text-align: right;">0.052</td>
+  </tr>
+  </tbody>
+  <caption style="text-align: left;">Table 1: Comparison of the human rating correlations with the original context-independent CLIPScore and the context-sensitive adaptation, using the same CLIP embeddings. Missing cells were not experimentally measured by design (Section <a href="#experiment-the-effect-of-context-on-human-image-description-evaluation" data-reference-type="ref" data-reference="experiment-the-effect-of-context-on-human-image-description-evaluation">3</a>). Across questions and participant groups, correlations improve. The CLIPScore correlations are a replication of Figure <a href="#fig:corr-blv-sighted" data-reference-type="ref" data-reference="fig:corr-blv-sighted">3</a>.</caption>
+  </table>
+  </div>
+<p>However, despite these promising signs, there are also reasons to believe that CLIP-based metrics have other restrictive limitations. Due to CLIP’s training, images are cropped at the center region and texts need to be truncated at 77 tokens <span class="citation" data-cites="radford2021learning">(Radford et al. 2021)</span>. Specifically for the purpose of accessibility, the information this removes can be crucial for determining whether a description is useful or not. For instance, our experiments show that the length of a description is an important indicator for description quality – information lost in CLIP-based metrics. Moreover, this disproportionately affects the ability to encode the context paragraphs, which are often longer than a typical description. These decisions are therefore likely reflected in any resulting metric and should therefore be reconsidered when devising a new metric.</p>
+<h2 id="referenceless-metrics-for-image-based-nlg-beyond-accessibility">5.2 Referenceless Metrics for Image-Based NLG Beyond Accessibility</h2>
+<p>While we have specifically focused on the usefulness of referenceless metrics for image accessibility, this isn’t the only potential purpose an image-based text might address. <span class="citation" data-cites="kreiss2022concadia">Kreiss, Goodman, and Potts (2022)</span> distinguish <em>descriptions</em>, i.e., image-based texts that are written to replace the image, and <em>captions</em>, i.e., texts that are intended to appear alongside images, such as tweets or newspaper captions. This suggests that the same text can be very useful for contextualizing an image but fail at providing image accessibility, and vice versa. To investigate this distinction, they asked participants to rate <code>alt</code> descriptions as well as image captions from Wikipedia according to (1) how much the text helped them imagine the image, and (2) how much they learned from the text that they couldn’t have learned from the image. Descriptions were rated more useful for imagining the image, whereas captions were rated more useful for learning additional information. Captions used for contextualizing an image might therefore be another potential use domain for a referenceless metric such as CLIPScore.</p>
+<p>To see whether CLIPScore might be a promising resource for evaluating captions, we obtained CLIPScore ratings for the descriptions and captions in <span class="citation" data-cites="kreiss2022concadia">Kreiss, Goodman, and Potts (2022)</span>. CLIPScore ratings correlate with the reconstruction as opposed to the contextualization goal (see Figure <a href="#fig:corr-clipscore-purpose" data-reference-type="ref" data-reference="fig:corr-clipscore-purpose">6</a>), suggesting that CLIPScore is inherently less appropriate to be used for assessing caption datasets. This aligns with the original observation in <span class="citation" data-cites="hessel2021clipscore">Hessel et al. (2021)</span> that CLIPScore performs less well on the news caption dataset GoodNews <span class="citation" data-cites="biten2019gooda">(Biten et al. 2019)</span> compared to MSCOCO <span class="citation" data-cites="hessel2021clipscore">(Hessel et al. 2021)</span>, a contextless description dataset.</p>
+<figure>
+  <img src="figures/clipscore-purposecorr.png" id="fig:corr-clipscore-purpose" style="width:60%; display: block; margin: 0 auto;" alt="2 subplots with the titles 'imagining the image' and 'learning new information'. The graph shows significant positive correlations in the 'imagining the image' plot for both descriptions (R=0.47) and captions (R=0.32). The correlation is much smaller for 'learning new information', not significant for descriptions (R=0.10) and significant for captions (R=0.14)." /><caption aria-hidden="true">Figure 7: CLIPScore provides higher ratings for image-based texts that capture image content well. Whether the descriptions and captions provide additional information to the image content doesn’t affect the ratings.</caption>
+</figure>
+<p>Taken together, this suggests that the “one-size-fits-all” approach to referenceless image-based text evaluation is not sufficient for adequately assessing text quality for the contextualization or the accessibility domain.</p>
+<h1 id="conclusion">6. Conclusion</h1>
+<p>The context an image appears in shapes the way high-quality accessibility descriptions are written. In this work, we reported on experiments in which we explicitly varied the contexts images were presented in and investigated the effects of this contextual evaluation on participant ratings. These experiments reveal strong contextual effects for sighted and BLV participants. We showed that this poses a serious obstacle for current referenceless metrics.</p>
+<p>Our results have wide implications for research on automatic description generation. The central result is that context plays an important role in what makes a description useful. Not realizing that leads to datasets and evaluation methods that don’t actually optimize for accessibility. Thus, we need to situate datasets and models within contexts, and evaluation methods need to be sensitive to context. In light of the benefits of referenceless metrics, we feel it is imperative to explore ways for them to incorporate context and to assess the resulting scores against judgments from BLV users.</p>
+<h1 class="unnumbered" id="acknowledgements">Acknowledgements</h1>
+<p>This work is supported in part by a grant from Google through the Stanford Institute for Human-Centered AI and by the NSF under project REU-1950223. We thank our experiment participants for their invaluable input.</p>
+<h1 class="unnumbered" id="references">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-anderson2016spice" class="csl-entry" role="doc-biblioentry">
+Anderson, Peter, Basura Fernando, Mark Johnson, and Stephen Gould. 2016. <span>“Spice: <span>Semantic</span> Propositional Image Caption Evaluation.”</span> In <em>European <span>Conference</span> on <span>Computer</span> <span>Vision</span></em>, 382–98. Springer. <a href="http://arxiv.org/abs/1607.08822">http://arxiv.org/abs/1607.08822</a>.
+</div>
+<div id="ref-bigham2006webinsight" class="csl-entry" role="doc-biblioentry">
+Bigham, Jeffrey P., Ryan S. Kaminsky, Richard E. Ladner, Oscar M. Danielsson, and Gordon L. Hempton. 2006. <span>“<span>WebInSight</span>:: Making Web Images Accessible.”</span> In <em>Proceedings of the 8th International <span>ACM</span> <span>SIGACCESS</span> Conference on <span>Computers</span> and Accessibility - <span>Assets</span> ’06</em>, 181. Portland, Oregon, USA: ACM Press. <a href="https://doi.org/10.1145/1168987.1169018">https://doi.org/10.1145/1168987.1169018</a>.
+</div>
+<div id="ref-biten2019gooda" class="csl-entry" role="doc-biblioentry">
+Biten, Ali Furkan, Lluis Gomez, Marcal Rusinol, and Dimosthenis Karatzas. 2019. <span>“Good <span>News</span>, <span>Everyone</span>! <span>Context</span> <span>Driven</span> <span>Entity</span>-<span>Aware</span> <span>Captioning</span> for <span>News</span> <span>Images</span>.”</span> In <em>2019 <span>IEEE</span>/<span>CVF</span> <span>Conference</span> on <span>Computer</span> <span>Vision</span> and <span>Pattern</span> <span>Recognition</span> (<span>CVPR</span>)</em>, 12458–67. Long Beach, CA, USA: IEEE. <a href="https://doi.org/10.1109/CVPR.2019.01275">https://doi.org/10.1109/CVPR.2019.01275</a>.
+</div>
+<div id="ref-buzzi2011web" class="csl-entry" role="doc-biblioentry">
+Buzzi, Maria Claudia, Marina Buzzi, and Barbara Leporini. 2011. <span>“Web 2.0: <span>Twitter</span> and the Blind.”</span> In <em>Proceedings of the 9th <span>ACM</span> <span>SIGCHI</span> <span>Italian</span> <span>Chapter</span> <span>International</span> <span>Conference</span> on <span>Computer</span>-<span>Human</span> <span>Interaction</span>: <span>Facing</span> <span>Complexity</span></em>, 151–56. <span>CHItaly</span>. New York, NY, USA: Association for Computing Machinery. <a href="https://doi.org/10.1145/2037296.2037333">https://doi.org/10.1145/2037296.2037333</a>.
+</div>
+<div id="ref-chen2020uniter" class="csl-entry" role="doc-biblioentry">
+Chen, Yen-Chun, Linjie Li, Licheng Yu, Ahmed El Kholy, Faisal Ahmed, Zhe Gan, Yu Cheng, and Jingjing Liu. 2020. <span>“Uniter: Universal Image-Text Representation Learning.”</span> In <em>European Conference on Computer Vision</em>, 104–20. Springer.
+</div>
+<div id="ref-feinglass2021smurf" class="csl-entry" role="doc-biblioentry">
+Feinglass, Joshua, and Yezhou Yang. 2021. <span>“SMURF: SeMantic and Linguistic UndeRstanding Fusion for Caption Evaluation via Typicality Analysis.”</span> In <em>Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers)</em>, 2250–60.
+</div>
+<div id="ref-gleason2019it" class="csl-entry" role="doc-biblioentry">
+Gleason, Cole, Patrick Carrington, Cameron Cassidy, Meredith Ringel Morris, Kris M. Kitani, and Jeffrey P. Bigham. 2019. <span>“<span>‘<span>It</span>’s Almost Like They’re Trying to Hide It’</span>: <span>How</span> <span>User</span>-<span>Provided</span> <span>Image</span> <span>Descriptions</span> <span>Have</span> <span>Failed</span> to <span>Make</span> <span>Twitter</span> <span>Accessible</span>.”</span> In <em>The <span>World</span> <span>Wide</span> <span>Web</span> <span>Conference</span> on - <span>WWW</span> ’19</em>, 549–59. San Francisco, CA, USA: ACM Press. <a href="https://doi.org/10.1145/3308558.3313605">https://doi.org/10.1145/3308558.3313605</a>.
+</div>
+<div id="ref-gleason2020twitter" class="csl-entry" role="doc-biblioentry">
+Gleason, Cole, Amy Pavel, Emma McCamey, Christina Low, Patrick Carrington, Kris M. Kitani, and Jeffrey P. Bigham. 2020. <span>“Twitter <span>A11y</span>: <span>A</span> Browser Extension to Make <span>Twitter</span> Images Accessible.”</span> In <em>Proceedings of the 2020 <span>CHI</span> <span>Conference</span> on <span>Human</span> <span>Factors</span> in <span>Computing</span> <span>Systems</span></em>, 1–12.
+</div>
+<div id="ref-guinness2018caption" class="csl-entry" role="doc-biblioentry">
+Guinness, Darren, Edward Cutrell, and Meredith Ringel Morris. 2018. <span>“Caption <span>Crawler</span>: <span>Enabling</span> <span>Reusable</span> <span>Alternative</span> <span>Text</span> <span>Descriptions</span> Using <span>Reverse</span> <span>Image</span> <span>Search</span>.”</span> In <em>Proceedings of the 2018 <span>CHI</span> <span>Conference</span> on <span>Human</span> <span>Factors</span> in <span>Computing</span> <span>Systems</span> - <span>CHI</span> ’18</em>, 1–11. Montreal QC, Canada: ACM Press. <a href="https://doi.org/10.1145/3173574.3174092">https://doi.org/10.1145/3173574.3174092</a>.
+</div>
+<div id="ref-gurari2020captioning" class="csl-entry" role="doc-biblioentry">
+Gurari, Danna, Yinan Zhao, Meng Zhang, and Nilavra Bhattacharya. 2020. <span>“Captioning Images Taken by People Who Are Blind.”</span> In <em>European <span>Conference</span> on <span>Computer</span> <span>Vision</span></em>, 417–34. Springer.
+</div>
+<div id="ref-hackett2003accessibility" class="csl-entry" role="doc-biblioentry">
+Hackett, Stephanie, Bambang Parmanto, and Xiaoming Zeng. 2003. <span>“Accessibility of <span>Internet</span> Websites Through Time.”</span> In <em>Proceedings of the 6th International <span>ACM</span> <span>SIGACCESS</span> Conference on <span>Computers</span> and Accessibility</em>, 32–39. Assets ’04. New York, NY, USA: Association for Computing Machinery. <a href="https://doi.org/10.1145/1028630.1028638">https://doi.org/10.1145/1028630.1028638</a>.
+</div>
+<div id="ref-hessel2021clipscore" class="csl-entry" role="doc-biblioentry">
+Hessel, Jack, Ari Holtzman, Maxwell Forbes, Ronan Le Bras, and Yejin Choi. 2021. <span>“CLIPScore: A Reference-Free Evaluation Metric for Image Captioning.”</span> In <em>Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing</em>, 7514–28.
+</div>
+<div id="ref-kasai2021bidimensional" class="csl-entry" role="doc-biblioentry">
+Kasai, Jungo, Keisuke Sakaguchi, Ronan Le Bras, Lavinia Dunagan, Jacob Morrison, Alexander R. Fabbri, Yejin Choi, and Noah A. Smith. 2021. <span>“Bidimensional <span>Leaderboards</span>: <span>Generate</span> and <span>Evaluate</span> <span>Language</span> <span>Hand</span> in <span>Hand</span>.”</span> <em>arXiv:2112.04139 [Cs]</em>, December. <a href="http://arxiv.org/abs/2112.04139">http://arxiv.org/abs/2112.04139</a>.
+</div>
+<div id="ref-kasai2021transparent" class="csl-entry" role="doc-biblioentry">
+Kasai, Jungo, Keisuke Sakaguchi, Lavinia Dunagan, Jacob Morrison, Ronan Le Bras, Yejin Choi, and Noah A. Smith. 2021. <span>“Transparent <span>Human</span> <span>Evaluation</span> for <span>Image</span> <span>Captioning</span>.”</span> <em>arXiv:2111.08940 [Cs]</em>, November. <a href="http://arxiv.org/abs/2111.08940">http://arxiv.org/abs/2111.08940</a>.
+</div>
+<div id="ref-kreiss2022concadia" class="csl-entry" role="doc-biblioentry">
+Kreiss, Elisa, Noah D. Goodman, and Christopher Potts. 2022. <span>“Concadia: <span>Tackling</span> <span>Image</span> <span>Accessibility</span> with <span>Descriptive</span> <span>Texts</span> and <span>Context</span>.”</span> <em>arXiv:2104.08376 [Cs]</em>, February. <a href="http://arxiv.org/abs/2104.08376">http://arxiv.org/abs/2104.08376</a>.
+</div>
+<div id="ref-lee2021qace" class="csl-entry" role="doc-biblioentry">
+Lee, Hwanhee, Thomas Scialom, Seunghyun Yoon, Franck Dernoncourt, and Kyomin Jung. 2021. <span>“QACE: Asking Questions to Evaluate an Image Caption.”</span> In <em>Findings of the Association for Computational Linguistics: EMNLP 2021</em>, 4631–38.
+</div>
+<div id="ref-lee2021umic" class="csl-entry" role="doc-biblioentry">
+Lee, Hwanhee, Seunghyun Yoon, Franck Dernoncourt, Trung Bui, and Kyomin Jung. 2021. <span>“UMIC: An Unreferenced Metric for Image Captioning via Contrastive Learning.”</span> In <em>Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 2: Short Papers)</em>, 220–26.
+</div>
+<div id="ref-lin2004rouge" class="csl-entry" role="doc-biblioentry">
+Lin, Chin-Yew. 2004. <span>“Rouge: <span>A</span> Package for Automatic Evaluation of Summaries.”</span> In <em>Text Summarization Branches Out</em>, 74–81.
+</div>
+<div id="ref-lo2019yisi" class="csl-entry" role="doc-biblioentry">
+Lo, Chi-kiu. 2019. <span>“<span>YiSi</span> - a <span>Unified</span> <span>Semantic</span> <span>MT</span> <span>Quality</span> <span>Evaluation</span> and <span>Estimation</span> <span>Metric</span> for <span>Languages</span> with <span>Different</span> <span>Levels</span> of <span>Available</span> <span>Resources</span>.”</span> In <em>Proceedings of the <span>Fourth</span> <span>Conference</span> on <span>Machine</span> <span>Translation</span> (<span>Volume</span> 2: <span>Shared</span> <span>Task</span> <span>Papers</span>, <span>Day</span> 1)</em>, 507–13. Florence, Italy: Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/W19-5358">https://doi.org/10.18653/v1/W19-5358</a>.
+</div>
+<div id="ref-louis2013automatically" class="csl-entry" role="doc-biblioentry">
+Louis, Annie, and Ani Nenkova. 2013. <span>“Automatically <span>Assessing</span> <span>Machine</span> <span>Summary</span> <span>Content</span> <span>Without</span> a <span>Gold</span> <span>Standard</span>.”</span> <em>Computational Linguistics</em> 39 (2): 267–300. <a href="https://doi.org/10.1162/COLI_a_00123">https://doi.org/10.1162/COLI_a_00123</a>.
+</div>
+<div id="ref-macleod2017understanding" class="csl-entry" role="doc-biblioentry">
+MacLeod, Haley, Cynthia L. Bennett, Meredith Ringel Morris, and Edward Cutrell. 2017. <span>“Understanding <span>Blind</span> <span>People</span>’s <span>Experiences</span> with <span>Computer</span>-<span>Generated</span> <span>Captions</span> of <span>Social</span> <span>Media</span> <span>Images</span>.”</span> In <em>Proceedings of the 2017 <span>CHI</span> <span>Conference</span> on <span>Human</span> <span>Factors</span> in <span>Computing</span> <span>Systems</span></em>, 5988–99. Denver Colorado USA: ACM. <a href="https://doi.org/10.1145/3025453.3025814">https://doi.org/10.1145/3025453.3025814</a>.
+</div>
+<div id="ref-morris2016most" class="csl-entry" role="doc-biblioentry">
+Morris, Meredith Ringel, Annuska Zolyomi, Catherine Yao, Sina Bahram, Jeffrey P. Bigham, and Shaun K. Kane. 2016. <span>“" <span>With</span> Most of It Being Pictures Now, <span>I</span> Rarely Use It" <span>Understanding</span> <span>Twitter</span>’s <span>Evolving</span> <span>Accessibility</span> to <span>Blind</span> <span>Users</span>.”</span> In <em>Proceedings of the 2016 <span>CHI</span> <span>Conference</span> on <span>Human</span> <span>Factors</span> in <span>Computing</span> <span>Systems</span></em>, 5506–16.
+</div>
+<div id="ref-muehlbradt2022what" class="csl-entry" role="doc-biblioentry">
+Muehlbradt, Annika, and Shaun K. Kane. 2022. <span>“What’s in an <span>ALT</span> <span>Tag</span>? <span>Exploring</span> <span>Caption</span> <span>Content</span> <span>Priorities</span> Through <span>Collaborative</span> <span>Captioning</span>.”</span> <em>ACM Transactions on Accessible Computing</em> 15 (1): 6:1–32. <a href="https://doi.org/10.1145/3507659">https://doi.org/10.1145/3507659</a>.
+</div>
+<div id="ref-papineni2002bleu" class="csl-entry" role="doc-biblioentry">
+Papineni, Kishore, Salim Roukos, Todd Ward, and Wei-Jing Zhu. 2002. <span>“B<span>L</span><span>E</span><span>U</span>: A Method for Automatic Evaluation of Machine Translation.”</span> In <em>Proceedings of the 40th Annual Meeting of the <span>Association</span> for <span>Computational</span> <span>Linguistics</span></em>, 311–18.
+</div>
+<div id="ref-peyrard2018objective" class="csl-entry" role="doc-biblioentry">
+Peyrard, Maxime, and Iryna Gurevych. 2018. <span>“Objective <span>Function</span> <span>Learning</span> to <span>Match</span> <span>Human</span> <span>Judgements</span> for <span>Optimization</span>-<span>Based</span> <span>Summarization</span>.”</span> In <em>Proceedings of the 2018 <span>Conference</span> of the <span>North</span> <span>American</span> <span>Chapter</span> of the <span>Association</span> for <span>Computational</span> <span>Linguistics</span>: <span>Human</span> <span>Language</span> <span>Technologies</span>, <span>Volume</span> 2 (<span>Short</span> <span>Papers</span>)</em>, 654–60. New Orleans, Louisiana: Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/N18-2103">https://doi.org/10.18653/v1/N18-2103</a>.
+</div>
+<div id="ref-radford2021learning" class="csl-entry" role="doc-biblioentry">
+Radford, Alec, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, et al. 2021. <span>“Learning Transferable Visual Models from Natural Language Supervision.”</span> In <em>International Conference on Machine Learning</em>, 8748–63. PMLR.
+</div>
+<div id="ref-stangl2020person" class="csl-entry" role="doc-biblioentry">
+Stangl, Abigale, Meredith Ringel Morris, and Danna Gurari. 2020. <span>“"<span>Person</span>, <span>Shoes</span>, <span>Tree</span>. <span>Is</span> the <span>Person</span> <span>Naked</span>?" <span>What</span> <span>People</span> with <span>Vision</span> <span>Impairments</span> <span>Want</span> in <span>Image</span> <span>Descriptions</span>.”</span> In <em>Proceedings of the 2020 <span>CHI</span> <span>Conference</span> on <span>Human</span> <span>Factors</span> in <span>Computing</span> <span>Systems</span></em>, 1–13. Honolulu HI USA: ACM. <a href="https://doi.org/10.1145/3313831.3376404">https://doi.org/10.1145/3313831.3376404</a>.
+</div>
+<div id="ref-stangl2021going" class="csl-entry" role="doc-biblioentry">
+Stangl, Abigale, Nitin Verma, Kenneth R Fleischmann, Meredith Ringel Morris, and Danna Gurari. 2021. <span>“Going Beyond One-Size-Fits-All Image Descriptions to Satisfy the Information Wants of People Who Are Blind or Have Low Vision.”</span> In <em>The 23rd International ACM SIGACCESS Conference on Computers and Accessibility</em>, 1–15. <a href="https://dl.acm.org/doi/pdf/10.1145/3441852.3471233">https://dl.acm.org/doi/pdf/10.1145/3441852.3471233</a>.
+</div>
+<div id="ref-Vashistha-etal:2018" class="csl-entry" role="doc-biblioentry">
+Vashistha, Aditya, Pooja Sethi, and Richard Anderson. 2018. <span>“BSpeak: An Accessible Voice-Based Crowdsourcing Marketplace for Low-Income Blind People.”</span> In <em>Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems</em>, 1–13. CHI ’18. New York, NY, USA: Association for Computing Machinery. <a href="https://doi.org/10.1145/3173574.3173631">https://doi.org/10.1145/3173574.3173631</a>.
+</div>
+<div id="ref-vedantam2015cider" class="csl-entry" role="doc-biblioentry">
+Vedantam, Ramakrishna, C Lawrence Zitnick, and Devi Parikh. 2015. <span>“Cider: <span>Consensus</span>-Based Image Description Evaluation.”</span> In <em>Proceedings of the <span>IEEE</span> Conference on Computer Vision and Pattern Recognition</em>, 4566–75. <a href="http://arxiv.org/abs/1411.5726">http://arxiv.org/abs/1411.5726</a>.
+</div>
+<div id="ref-voykinska2016how" class="csl-entry" role="doc-biblioentry">
+Voykinska, Violeta, Shiri Azenkot, Shaomei Wu, and Gilly Leshed. 2016. <span>“How Blind People Interact with Visual Content on Social Networking Services.”</span> In <em>Proceedings of the 19th Acm Conference on Computer-Supported Cooperative Work &amp; Social Computing</em>, 1584–95.
+</div>
+<div id="ref-witten2005practical" class="csl-entry" role="doc-biblioentry">
+Witten, Ian H, Eibe Frank, Mark A Hall, Christopher J Pal, and MINING DATA. 2005. <span>“Practical Machine Learning Tools and Techniques.”</span> In <em>DATA MINING</em>, 2:4.
+</div>
+<div id="ref-zhang2019bertscore" class="csl-entry" role="doc-biblioentry">
+Zhang, Tianyi, Varsha Kishore, Felix Wu, Kilian Q Weinberger, and Yoav Artzi. 2019. <span>“BERTScore: Evaluating Text Generation with BERT.”</span> In <em>International Conference on Learning Representations</em>.
+</div>
+<div id="ref-zhao2020limitations" class="csl-entry" role="doc-biblioentry">
+Zhao, Wei, Goran Glavaš, Maxime Peyrard, Yang Gao, Robert West, and Steffen Eger. 2020. <span>“On the <span>Limitations</span> of <span>Cross</span>-Lingual <span>Encoders</span> as <span>Exposed</span> by <span>Reference</span>-<span>Free</span> <span>Machine</span> <span>Translation</span> <span>Evaluation</span>.”</span> In <em>Proceedings of the 58th <span>Annual</span> <span>Meeting</span> of the <span>Association</span> for <span>Computational</span> <span>Linguistics</span></em>, 1656–71. Online: Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/2020.acl-main.151">https://doi.org/10.18653/v1/2020.acl-main.151</a>.
+</div>
+</div>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>Corresponding author: <a href="ekreiss@stanford.edu">ekreiss@stanford.edu</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://github.com/elisakreiss/contextual-description-evaluation">https://github.com/elisakreiss/contextual-description-evaluation</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>E.g., <a href="https://webaim.org/techniques/alttext/">https://webaim.org/techniques/alttext/</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>Result from a linear effects analyses where the shuffled condition is coded as 0, and the ordered condition as 1.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p>We assume random intercepts by participant and description, and we rescaled description length to fall in the range between 0 and 1.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p>Unfortunately, we are unable to provide quantitative results for these referenceless metrics since the authors haven’t provided the code necessary (QACE), or the code relies on image features that can’t be created for novel datasets with currently available hardware (UMIC, QACE).<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>
